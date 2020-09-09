@@ -1,0 +1,44 @@
+{
+    "Records": [
+        {
+            "eventVersion": "2.1",
+            "eventSource": "aws:s3",
+            "awsRegion": "us-east-1",
+            "eventTime": "2020-09-02T14:14:03.192Z",
+            "eventName": "ObjectCreated:Put",
+            "userIdentity": {
+                "principalId": "AWS:AIDAX32M4L4EWIW2JH2CQ"
+            },
+            "requestParameters": {
+                "sourceIPAddress": "188.138.158.208"
+            },
+            "responseElements": {
+                "x-amz-request-id": "2C4BC2F307E1E174",
+                "x-amz-id-2": "8Wqpu9qrPkQNKrr3OrIIYt5c3Ej2ukzT+MVUCzb+i2KJLCE89GtYI1JH9rUgERun93iY6hmCu4whJJgXMTGvDPzJVZxbTwE2"
+            },
+            "s3": {
+                "s3SchemaVersion": "1.0",
+                "configurationId": "new-article-upload",
+                "bucket": {
+                    "name": "hive-article-hosting-import--curie",
+                    "ownerIdentity": {
+                        "principalId": "A3D7DRDN3I68RZ"
+                    },
+                    "arn": "arn:aws:s3:::hive-article-hosting-import--curie"
+                },
+                "object": {
+                    "key": "test.zip",
+                    "size": 205,
+                    "eTag": "875d5b83a37b60e2c72498d393a86e05",
+                    "sequencer": "005F4FA8AB9A6ECA78"
+                }
+            }
+        }
+    ]
+}
+
+
+
+
+
+
