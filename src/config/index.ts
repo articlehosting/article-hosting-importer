@@ -25,8 +25,9 @@ const config = {
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     },
     sqs: {
-      QueueName: process.env.SQS_QUEUE_NAME ?? 'somequeue',
-      defaultReceiveParams: <ReceiveMessageRequest> {
+      endpoint: process.env.SQS_ENDPOINT,
+      queueName: process.env.SQS_QUEUE_NAME ?? 'default',
+      defaultParams: <ReceiveMessageRequest> {
         AttributeNames: [
           'SentTimestamp',
         ],
