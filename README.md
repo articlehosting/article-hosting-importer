@@ -12,3 +12,6 @@ aws --endpoint-url http://localhost:9324 sqs send-message --queue-url http://loc
 ```
 aws --endpoint-url http://localhost:9324 sqs receive-message --queue-url http://localhost:9324/queue/default --wait-time-seconds 10
 ```
+
+#### TODO
+ - add import.service which will do the import stuff

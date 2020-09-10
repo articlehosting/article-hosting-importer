@@ -1,26 +1,27 @@
-import SqsMessageModel, { SQSEvent } from '../../models/sqsMessage.model';
+import LoggerService, {Level} from './logger.service';
+import SqsMessageModel, {SQSEvent} from '../../models/sqsMessage.model';
 import SQSAdapter from '../adapters/sqs.adapter';
 
 class SQSService {
+  private logger: LoggerService;
+
   private sqsAdapter: SQSAdapter;
 
-  constructor(sqsAdapter: SQSAdapter) {
+  constructor(logger: LoggerService, sqsAdapter: SQSAdapter) {
+    this.logger = logger;
     this.sqsAdapter = sqsAdapter;
   }
 
   public async getMessages(): Promise<Array<SqsMessageModel<SQSEvent>>> {
     const messages = await this.sqsAdapter.getMessages();
 
-    const result = messages.map((message) => new SqsMessageModel<SQSEvent>(message));
-
-    return result;
+    return messages.map((message) => new SqsMessageModel<SQSEvent>(message));
   }
 
-  async processMessage(message: SqsMessageModel<SQSEvent>): Promise<void> {
-    console.log(message);
-
+  public async removeMessage(message: SqsMessageModel<SQSEvent>): Promise<void> {
     await this.sqsAdapter.removeMessage(message.message);
-    console.info(`Message ${message.messageId} was removed from queue.`);
+
+    this.logger.log(Level.info, `Message ${message.messageId} was removed from queue.`);
   }
 }
 

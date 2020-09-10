@@ -10,6 +10,9 @@ if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
 }
 
 const config = {
+  logger: {
+    level: process.env.NODE_ENV !== 'production' ? 'debug' : 'info',
+  },
   stencila: {
     options: <CommonEncodeOptions> {
       isBundle: false,

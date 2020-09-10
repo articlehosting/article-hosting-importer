@@ -1,16 +1,18 @@
-import SQS, {
-  GetQueueUrlResult, Message, MessageList, ReceiveMessageRequest,
-} from 'aws-sdk/clients/sqs';
+import SQS, {GetQueueUrlResult, Message, MessageList, ReceiveMessageRequest,} from 'aws-sdk/clients/sqs';
 import config from '../../config';
+import LoggerService, {Level} from '../service/logger.service';
 
 export default class SQSAdapter {
+  private logger: LoggerService;
+
   private sqs: SQS;
 
   private name: string;
 
   private queueUrl?: string;
 
-  constructor(queueName: string, sqs: SQS) {
+  constructor(logger: LoggerService, queueName: string, sqs: SQS) {
+    this.logger = logger;
     this.name = queueName;
     this.sqs = sqs;
   }
@@ -39,6 +41,8 @@ export default class SQSAdapter {
       }
 
       this.queueUrl = queue.QueueUrl;
+
+      this.logger.log<GetQueueUrlResult>(Level.info, 'connected to queue', queue);
 
       return queue;
     } catch (err) {
@@ -69,7 +73,6 @@ export default class SQSAdapter {
 
       if (message.ReceiptHandle) {
         await this.sqs.deleteMessage({ QueueUrl, ReceiptHandle: message.ReceiptHandle }).promise();
-        console.info(`${message.MessageId ?? ''} was removed from queue.`);
       }
     } catch (err) {
       console.error(err);

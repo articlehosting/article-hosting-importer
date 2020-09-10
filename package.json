@@ -14,7 +14,8 @@
   "dependencies": {
     "@stencila/encoda": "0.99.5",
     "aws-sdk": "2.739.0",
-    "mongodb": "3.6.0"
+    "mongodb": "3.6.0",
+    "winston": "3.3.3"
   },
   "devDependencies": {
     "@types/jest": "^26.0.5",

@@ -1,17 +1,23 @@
-import SQS from 'aws-sdk/clients/sqs';
+import SQS, { Message } from 'aws-sdk/clients/sqs';
 import SQSAdapter from './adapters/sqs.adapter';
+import LoggerService, { Level } from './service/logger.service';
 import SQSService from './service/sqs.service';
 import config from '../config';
 
 const { endpoint } = config.aws.sqs;
 
 class ApiArticleHostingImporter {
+  private logger: LoggerService;
+
   private sqsAdapter: SQSAdapter;
 
   private sqsService: SQSService;
 
   constructor() {
+    this.logger = new LoggerService();
+
     this.sqsAdapter = new SQSAdapter(
+      this.logger,
       config.aws.sqs.queueName,
       new SQS({
         ...config.aws.secrets,
@@ -19,7 +25,7 @@ class ApiArticleHostingImporter {
       }),
     );
 
-    this.sqsService = new SQSService(this.sqsAdapter);
+    this.sqsService = new SQSService(this.logger, this.sqsAdapter);
   }
 
   async process(): Promise<void> {
@@ -32,7 +38,9 @@ class ApiArticleHostingImporter {
     const asyncQueue = [];
 
     for (const message of messages) {
-      asyncQueue.push(this.sqsService.processMessage(message));
+      this.logger.log<Message>(Level.debug, 'message', message.message);
+
+      asyncQueue.push(this.sqsService.removeMessage(message));
     }
 
     await Promise.all(asyncQueue);
