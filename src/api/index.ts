@@ -29,10 +29,13 @@ class ApiArticleHostingImporter {
       return;
     }
 
+    const asyncQueue = [];
+
     for (const message of messages) {
-      await this.sqsService.processMessage(message);
+      asyncQueue.push(this.sqsService.processMessage(message));
     }
 
+    await Promise.all(asyncQueue);
     await this.process();
   }
 }
