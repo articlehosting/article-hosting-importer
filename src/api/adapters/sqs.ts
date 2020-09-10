@@ -3,7 +3,7 @@ import SQS, {
 } from 'aws-sdk/clients/sqs';
 import config from '../../config';
 
-export default class SQSConsumer {
+export default class SQSAdapter {
   private sqs: SQS;
 
   private name: string;

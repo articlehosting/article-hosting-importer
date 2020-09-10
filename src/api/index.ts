@@ -1,12 +1,17 @@
 import SQS from 'aws-sdk/clients/sqs';
-import SQSConsumer from './service/sqs-consumer';
+import SQSAdapter from './adapters/sqs';
+import MessageReceiverService from './service/messageReceiver.service';
 import config from '../config';
 
-class ApiArticleHostingImporter {
-  async process(): Promise<void> {
-    const { endpoint } = config.aws.sqs;
+const { endpoint } = config.aws.sqs;
 
-    const consumer = new SQSConsumer(
+class ApiArticleHostingImporter {
+  private sqsAdapter: SQSAdapter;
+
+  private messageReceiverService: MessageReceiverService;
+
+  constructor() {
+    this.sqsAdapter = new SQSAdapter(
       config.aws.sqs.queueName,
       new SQS({
         ...config.aws.secrets,
@@ -14,15 +19,14 @@ class ApiArticleHostingImporter {
       }),
     );
 
-    const messages = await consumer.getMessages();
+    this.messageReceiverService = new MessageReceiverService(this.sqsAdapter);
+  }
 
-    console.log(messages);
+  async process(): Promise<void> {
+    const messages = await this.messageReceiverService.getMessages();
 
-    for (let i = 0; i < messages.length; i += 1) {
-      const message = messages[i];
-
-      await consumer.removeMessage(message);
-      console.log(`Message ${message.MessageId ?? ''} was removed from ${config.aws.sqs.queueName} queue`);
+    for (const message of messages) {
+      await this.messageReceiverService.processMessage(message);
     }
   }
 }
