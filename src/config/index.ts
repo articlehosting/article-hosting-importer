@@ -31,7 +31,7 @@ const config = {
         AttributeNames: [
           'SentTimestamp',
         ],
-        MaxNumberOfMessages: 1 ?? 10,
+        MaxNumberOfMessages: 5,
         MessageAttributeNames: [
           'All',
         ],
