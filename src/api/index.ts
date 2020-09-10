@@ -1,6 +1,6 @@
 import SQS from 'aws-sdk/clients/sqs';
-import SQSAdapter from './adapters/sqs';
-import MessageReceiverService from './service/messageReceiver.service';
+import SQSAdapter from './adapters/sqs.adapter';
+import SQSService from './service/sqs.service';
 import config from '../config';
 
 const { endpoint } = config.aws.sqs;
@@ -8,7 +8,7 @@ const { endpoint } = config.aws.sqs;
 class ApiArticleHostingImporter {
   private sqsAdapter: SQSAdapter;
 
-  private messageReceiverService: MessageReceiverService;
+  private sqsService: SQSService;
 
   constructor() {
     this.sqsAdapter = new SQSAdapter(
@@ -19,15 +19,21 @@ class ApiArticleHostingImporter {
       }),
     );
 
-    this.messageReceiverService = new MessageReceiverService(this.sqsAdapter);
+    this.sqsService = new SQSService(this.sqsAdapter);
   }
 
   async process(): Promise<void> {
-    const messages = await this.messageReceiverService.getMessages();
+    const messages = await this.sqsService.getMessages();
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return;
+    }
 
     for (const message of messages) {
-      await this.messageReceiverService.processMessage(message);
+      await this.sqsService.processMessage(message);
     }
+
+    await this.process();
   }
 }
 
