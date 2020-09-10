@@ -1,4 +1,6 @@
 import { Message, MessageAttributeValue } from 'aws-sdk/clients/sqs';
+import Model from './model';
+import LoggerService, { Level } from '../api/service/logger.service';
 
 export interface SQSEvent {
   Records: [{
@@ -37,7 +39,7 @@ export interface SQSEvent {
   }],
 }
 
-class SQSMessageModel<T> {
+class SQSMessageModel<T> extends Model {
   private Message: Message;
 
   private MessageId: string;
@@ -52,7 +54,8 @@ class SQSMessageModel<T> {
 
   private Body: T;
 
-  constructor(message: Message) {
+  constructor(logger: LoggerService, message: Message) {
+    super(logger);
     this.Message = message;
     this.MessageId = message.MessageId ?? '';
     this.ReceiptHandle = message.ReceiptHandle ?? '';
@@ -95,7 +98,7 @@ class SQSMessageModel<T> {
     try {
       return <T>JSON.parse(this.OriginalBody);
     } catch (err) {
-      console.info('Unable to parse body', err.message, this.OriginalBody);
+      this.logger.log<Error>(Level.error, `Unable to parse body "${this.OriginalBody}"`, err);
 
       return <T>{};
     }

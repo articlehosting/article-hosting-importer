@@ -1,10 +1,11 @@
-import SQS, {GetQueueUrlResult, Message, MessageList, ReceiveMessageRequest,} from 'aws-sdk/clients/sqs';
+import SQS, {
+  GetQueueUrlResult, Message, MessageList, ReceiveMessageRequest,
+} from 'aws-sdk/clients/sqs';
+import Adapter from './adapter';
 import config from '../../config';
-import LoggerService, {Level} from '../service/logger.service';
+import LoggerService, { Level } from '../service/logger.service';
 
-export default class SQSAdapter {
-  private logger: LoggerService;
-
+export default class SQSAdapter extends Adapter {
   private sqs: SQS;
 
   private name: string;
@@ -12,7 +13,7 @@ export default class SQSAdapter {
   private queueUrl?: string;
 
   constructor(logger: LoggerService, queueName: string, sqs: SQS) {
-    this.logger = logger;
+    super(logger);
     this.name = queueName;
     this.sqs = sqs;
   }
