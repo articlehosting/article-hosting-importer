@@ -1,11 +1,5 @@
-import LoggerService from './logger.service';
+import { Logable } from './logger.service';
 
-abstract class Service {
-  protected logger: LoggerService;
-
-  constructor(logger: LoggerService) {
-    this.logger = logger;
-  }
-}
+abstract class Service extends Logable {}
 
 export default Service;

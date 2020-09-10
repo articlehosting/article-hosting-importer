@@ -76,6 +76,7 @@ module.exports = {
     'import/prefer-default-export': 'off',
     'class-methods-use-this': 'off',
     'no-await-in-loop': 'off',
+    'max-classes-per-file': 'off',
   },
   settings: {
     'import/resolver': {

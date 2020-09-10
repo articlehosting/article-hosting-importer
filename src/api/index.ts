@@ -1,20 +1,18 @@
 import SQS, { Message } from 'aws-sdk/clients/sqs';
 import SQSAdapter from './adapters/sqs.adapter';
-import LoggerService, { Level } from './service/logger.service';
+import LoggerService, { Level, Logable } from './service/logger.service';
 import SQSService from './service/sqs.service';
 import config from '../config';
 
 const { endpoint } = config.aws.sqs;
 
-class ApiArticleHostingImporter {
-  private logger: LoggerService;
-
+class ApiArticleHostingImporter extends Logable {
   private sqsAdapter: SQSAdapter;
 
   private sqsService: SQSService;
 
   constructor() {
-    this.logger = new LoggerService();
+    super(new LoggerService());
 
     this.sqsAdapter = new SQSAdapter(
       this.logger,

@@ -11,6 +11,14 @@ export enum Level {
   silly = 'silly',
 }
 
+export abstract class Logable {
+  protected logger: LoggerService;
+
+  constructor(logger: LoggerService) {
+    this.logger = logger;
+  }
+}
+
 class LoggerService {
   private winston: Logger;
 
