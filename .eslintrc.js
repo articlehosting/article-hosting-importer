@@ -36,7 +36,6 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': 'error',
     '@typescript-eslint/prefer-nullish-coalescing': 'error',
     '@typescript-eslint/promise-function-async': 'error',
-    '@typescript-eslint/restrict-template-expressions': 'error',
     'import/order': ['error', {
       alphabetize: {
         order: 'asc',
@@ -76,6 +75,7 @@ module.exports = {
     'import/prefer-default-export': 'off',
     'class-methods-use-this': 'off',
     'no-await-in-loop': 'off',
+    '@typescript-eslint/restrict-template-expressions': 'off',
   },
   settings: {
     'import/resolver': {
