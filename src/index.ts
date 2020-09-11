@@ -1,12 +1,19 @@
-import api from './api';
+import ApiArticleHostingImporter from './api';
+import LoggerService, { Level } from './api/service/logger.service';
 
 void (async (): Promise<void> => {
-  try {
-    await api.process();
+  let code = 0;
+  const logger = new LoggerService();
 
-    process.exit(0);
+  try {
+    const api = new ApiArticleHostingImporter(logger);
+
+    await api.process();
   } catch (err) {
-    console.error(err);
-    process.exit(1);
+    logger.log(Level.error, err.message, err);
+
+    code = 1;
   }
+
+  process.exit(code);
 })();

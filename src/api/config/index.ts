@@ -5,7 +5,7 @@ import { ReceiveMessageRequest } from 'aws-sdk/clients/sqs';
 if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
   // eslint-disable-next-line
   require('dotenv').config({
-    path: path.join(__dirname, '..', '..', '.env'),
+    path: path.join(__dirname, '..', '..', '..', '.env'),
   });
 }
 

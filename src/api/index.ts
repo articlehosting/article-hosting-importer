@@ -14,8 +14,8 @@ class ApiArticleHostingImporter extends Logable {
 
   private importService: ImportService;
 
-  constructor() {
-    super(new LoggerService());
+  constructor(logger: LoggerService) {
+    super(logger);
 
     this.sqsAdapter = new SQSAdapter(
       this.logger,
@@ -47,6 +47,4 @@ class ApiArticleHostingImporter extends Logable {
   }
 }
 
-const api = new ApiArticleHostingImporter();
-
-export default api;
+export default ApiArticleHostingImporter;
