@@ -34,7 +34,7 @@ const config = {
         AttributeNames: [
           'SentTimestamp',
         ],
-        MaxNumberOfMessages: 5,
+        MaxNumberOfMessages: 3, // executes 3 articles in parallel
         MessageAttributeNames: [
           'All',
         ],

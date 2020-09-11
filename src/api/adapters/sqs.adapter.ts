@@ -5,17 +5,35 @@ import Adapter from '../abstract/adapter';
 import config from '../config';
 import LoggerService, { Level } from '../service/logger.service';
 
+export interface SqsAdapterOptions {
+  queueName: string;
+  endpoint?: string;
+}
+
 class SQSAdapter extends Adapter {
   private sqs: SQS;
 
   private name: string;
 
+  private endpoint?: string;
+
   private queueUrl?: string;
 
-  constructor(logger: LoggerService, queueName: string, sqs: SQS) {
+  constructor(logger: LoggerService, options: SqsAdapterOptions) {
     super(logger);
-    this.name = queueName;
-    this.sqs = sqs;
+
+    this.name = options.queueName;
+
+    if (options && options.endpoint) {
+      this.endpoint = options.endpoint;
+    }
+
+    const sqsOptions = {
+      ...config.aws.secrets,
+      ...(this.endpoint ? { endpoint: this.endpoint } : {}),
+    };
+
+    this.sqs = new SQS(sqsOptions);
   }
 
   private async getQueueUrl(): Promise<string> {

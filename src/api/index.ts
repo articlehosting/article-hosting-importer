@@ -1,4 +1,3 @@
-import SQS from 'aws-sdk/clients/sqs';
 import Logable from './abstract/logable';
 import SQSAdapter from './adapters/sqs.adapter';
 import config from './config';
@@ -20,11 +19,10 @@ class ApiArticleHostingImporter extends Logable {
 
     this.sqsAdapter = new SQSAdapter(
       this.logger,
-      config.aws.sqs.queueName,
-      new SQS({
-        ...config.aws.secrets,
-        ...(endpoint ? { endpoint } : {}),
-      }),
+      {
+        queueName: config.aws.sqs.queueName,
+        endpoint,
+      },
     );
 
     this.sqsService = new SQSService(this.logger, this.sqsAdapter);
