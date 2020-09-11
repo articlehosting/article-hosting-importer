@@ -45,9 +45,15 @@ const config = {
       },
     },
     s3: {
-      importStorage: {},
-      articleStorage: {},
-      archiveStorage: {},
+      importStorage: {
+        bucketName: process.env.S3_IMPORT_BUCKET_NAME,
+      },
+      articleStorage: {
+        bucketName: process.env.S3_STORAGE_BUCKET_NAME,
+      },
+      archiveStorage: {
+        bucketName: process.env.S3_ARCHIVE_BUCKET_NAME,
+      },
     },
   },
   paths: {
