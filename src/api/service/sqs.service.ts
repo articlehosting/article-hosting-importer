@@ -1,6 +1,7 @@
 import LoggerService, { Level } from './logger.service';
 import Service from './service';
-import SqsMessageModel, { SQSEvent } from '../../models/sqsMessage.model';
+import S3EventModel, { S3Event } from '../../models/s3Event.model';
+import SQSMessageModel from '../../models/sqsMessage.model';
 import SQSAdapter from '../adapters/sqs.adapter';
 
 class SQSService extends Service {
@@ -11,16 +12,20 @@ class SQSService extends Service {
     this.sqsAdapter = sqsAdapter;
   }
 
-  public async getMessages(): Promise<Array<SqsMessageModel<SQSEvent>>> {
+  public async getMessages(): Promise<Array<SQSMessageModel<S3Event>>> {
     const messages = await this.sqsAdapter.getMessages();
 
-    return messages.map((message) => new SqsMessageModel<SQSEvent>(this.logger, message));
+    return messages.map((message) => new SQSMessageModel<S3Event>(this.logger, message));
   }
 
-  public async removeMessage(message: SqsMessageModel<SQSEvent>): Promise<void> {
+  public async removeMessage(message: SQSMessageModel<S3Event>): Promise<void> {
     await this.sqsAdapter.removeMessage(message.message);
 
     this.logger.log(Level.info, `Message ${message.messageId} was removed from queue.`);
+  }
+
+  async decodeContent(message: SQSMessageModel<S3Event>): Promise<S3EventModel> {
+    return new S3EventModel(this.logger, message.body);
   }
 }
 
