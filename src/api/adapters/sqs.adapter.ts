@@ -1,4 +1,5 @@
 import SQS, {
+  ClientConfiguration,
   GetQueueUrlResult, Message, MessageList, ReceiveMessageRequest,
 } from 'aws-sdk/clients/sqs';
 import Adapter from '../abstract/adapter';
@@ -28,7 +29,7 @@ class SQSAdapter extends Adapter {
       this.endpoint = options.endpoint;
     }
 
-    const sqsOptions = {
+    const sqsOptions = <ClientConfiguration>{
       ...config.aws.secrets,
       ...(this.endpoint ? { endpoint: this.endpoint } : {}),
     };
@@ -81,7 +82,6 @@ class SQSAdapter extends Adapter {
 
       return data.Messages ?? [];
     } catch (err) {
-      console.log(err);
       throw new Error(err);
     }
   }
@@ -94,7 +94,6 @@ class SQSAdapter extends Adapter {
         await this.sqs.deleteMessage({ QueueUrl, ReceiptHandle: message.ReceiptHandle }).promise();
       }
     } catch (err) {
-      console.error(err);
       throw new Error(err);
     }
   }

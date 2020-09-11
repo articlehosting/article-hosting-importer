@@ -2,10 +2,12 @@ import path from 'path';
 import { CommonEncodeOptions } from '@stencila/encoda/dist/codecs/types';
 import { ReceiveMessageRequest } from 'aws-sdk/clients/sqs';
 
+const root = path.normalize(path.join(__dirname, '..', '..', '..'));
+
 if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
   // eslint-disable-next-line
   require('dotenv').config({
-    path: path.join(__dirname, '..', '..', '..', '.env'),
+    path: path.join(root, '.env'),
   });
 }
 
@@ -47,6 +49,9 @@ const config = {
       articleStorage: {},
       archiveStorage: {},
     },
+  },
+  paths: {
+    tempFolder: path.join(root, 'tmp'),
   },
 };
 

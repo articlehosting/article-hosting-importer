@@ -116,3 +116,8 @@ dist
 # Temp folder
 /tmp
 !/tmp/.gitkeep
+
+# Data folder
+!data/
+data/*
+!data/.gitkeep
