@@ -1,6 +1,6 @@
 FROM node:14-alpine as base
 WORKDIR /app
-COPY package.json pacage-lock.json /app
+COPY package.json package-lock.json /app
 RUN npm install --production
 
 FROM node:14-alpine as build
