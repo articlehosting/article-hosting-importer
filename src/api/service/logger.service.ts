@@ -1,5 +1,5 @@
 import winston, { Logger } from 'winston';
-import config from '../../config';
+import config from '../config';
 
 export enum Level {
   error = 'error',
@@ -9,14 +9,6 @@ export enum Level {
   verbose = 'verbose',
   debug = 'debug',
   silly = 'silly',
-}
-
-export abstract class Logable {
-  protected logger: LoggerService;
-
-  constructor(logger: LoggerService) {
-    this.logger = logger;
-  }
 }
 
 class LoggerService {

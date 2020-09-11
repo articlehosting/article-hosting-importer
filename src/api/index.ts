@@ -1,9 +1,10 @@
 import SQS from 'aws-sdk/clients/sqs';
+import Logable from './abstract/logable';
 import SQSAdapter from './adapters/sqs.adapter';
+import config from './config';
 import ImportService from './service/import.service';
-import LoggerService, { Logable } from './service/logger.service';
+import LoggerService from './service/logger.service';
 import SQSService from './service/sqs.service';
-import config from '../config';
 
 const { endpoint } = config.aws.sqs;
 

@@ -1,6 +1,6 @@
 import { Message, MessageAttributeValue } from 'aws-sdk/clients/sqs';
-import Model from './model';
-import LoggerService, { Level } from '../api/service/logger.service';
+import Model from '../abstract/model';
+import LoggerService, { Level } from '../service/logger.service';
 
 class SQSMessageModel<T> extends Model {
   private Message: Message;

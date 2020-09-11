@@ -1,9 +1,9 @@
 import { Message } from 'aws-sdk/clients/sqs';
 import LoggerService, { Level } from './logger.service';
-import Service from './service';
 import SQSService from './sqs.service';
-import { S3Event } from '../../models/s3Event.model';
-import SQSMessageModel from '../../models/sqsMessage.model';
+import Service from '../abstract/service';
+import { S3Event } from '../models/s3Event.model';
+import SQSMessageModel from '../models/sqsMessage.model';
 
 class ImportService extends Service {
   private sqsService: SQSService;

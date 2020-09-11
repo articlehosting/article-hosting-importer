@@ -1,4 +1,4 @@
-import { Logable } from '../service/logger.service';
+import Logable from './logable';
 
 abstract class Adapter extends Logable {}
 

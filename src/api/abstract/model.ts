@@ -1,4 +1,4 @@
-import { Logable } from '../api/service/logger.service';
+import Logable from './logable';
 
 abstract class Model extends Logable {}
 
