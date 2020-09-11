@@ -7,7 +7,6 @@ PORT := 8000
 
 .PHONY: build clean dev install lint* prod test
 
-prod: export TARGET = prod
 prod: build
 	touch .env
 	$(DOCKER) run \
@@ -15,7 +14,6 @@ prod: build
 		--env-file .env \
 		$(IMAGE):$(IMAGE_TAG)
 
-lint: export TARGET = dev
 lint: build
 	$(DOCKER) run --rm \
 		-v $(DATA_VOLUME)/.eslint:/app/.eslint \
@@ -23,7 +21,6 @@ lint: build
 		$(IMAGE):$(IMAGE_TAG)-dev \
 		npm run lint
 
-lint\:fix: export TARGET = dev
 lint\:fix: build
 	$(DOCKER) run --rm \
 		-v $(DATA_VOLUME)/.eslint:/app/.eslint \
@@ -34,7 +31,6 @@ lint\:fix: build
 		$(IMAGE):$(IMAGE_TAG)-dev \
 		npm run lint:fix
 
-test: export TARGET = dev
 test: build
 	$(DOCKER) run \
 		-v $(DATA_VOLUME)/.jest:/app/.jest \
