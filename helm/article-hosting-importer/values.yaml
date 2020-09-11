@@ -1,0 +1,16 @@
+schedule: <>
+parallelism: 2
+
+image:
+  repository: liberoadmin/article-hosting-importer
+  pullPolicy: IfNotPresent
+  tag: <>
+
+config:
+  region: <>
+  accesskey: <>
+  secretkey: <>
+
+app:
+  sqs_name: <>
+  sqs_url: <>
