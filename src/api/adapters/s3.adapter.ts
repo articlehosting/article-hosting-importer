@@ -31,7 +31,10 @@ class S3Adapter extends Adapter {
 
     const s3Options = <ClientConfiguration>{
       ...(config.aws.secrets),
-      ...(this.endpoint ? { endpoint: this.endpoint } : {}),
+      ...(this.endpoint ? {
+        endpoint: this.endpoint,
+        s3BucketEndpoint: true,
+      } : {}),
     };
 
     this.s3 = new S3(s3Options);
