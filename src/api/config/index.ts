@@ -45,6 +45,7 @@ const config = {
       },
     },
     s3: {
+      endpoint: process.env.S3_ENDPOINT,
       importStorage: {
         bucketName: process.env.S3_IMPORT_BUCKET_NAME,
       },

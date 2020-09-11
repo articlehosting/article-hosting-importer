@@ -7,6 +7,7 @@ import config from '../config';
 import { S3Event } from '../models/s3Event.model';
 import SQSMessageModel from '../models/sqsMessage.model';
 
+const { endpoint } = config.aws.s3;
 const importBucketName = config.aws.s3.importStorage.bucketName;
 
 class ImportService extends Service {
@@ -24,6 +25,7 @@ class ImportService extends Service {
 
     this.importS3Adapter = new S3Adapter(this.logger, {
       bucketName: importBucketName,
+      endpoint,
     });
   }
 
