@@ -1,0 +1,61 @@
+name: Main
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+env:
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  importer:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Docker images
+        run: |
+          make IMAGE_TAG=${IMAGE_TAG} TARGET=prod build
+      - name: Lint
+        run: |
+          make IMAGE_TAG=${IMAGE_TAG} lint
+      - name: Test
+        run: |
+          make IMAGE_TAG=${IMAGE_TAG} test
+
+      - name: Push Docker image
+        run: |
+          echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin
+          docker push liberoadmin/article-hosting-importer:${IMAGE_TAG}
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Deploy
+        if: github.ref == 'refs/heads/main'
+        run: |
+          aws --region=us-east-1 eks update-kubeconfig --name hive-eks--curie
+          helm upgrade -i article-hosting-importer--prod \
+            --set images.tag=${IMAGE_TAG} \
+            --set config.region=us-east-1 \
+            --set config.accesskey=${{ secrets.AWS_ACCESS_KEY_ID }} \
+            --set config.secretkey=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+            --set app.sqs_name=${{ secrets.SQS_NAME }} \
+            --set app.sqs_url=${{ secrets.SQS_URL }} \
+            --wait \
+            helm/article-hosting-importer
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Notify Slack
+        if: failure()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel: article-hosting-general
+          status: FAILED
+          color: danger
