@@ -2,6 +2,8 @@ import path from 'path';
 import { CommonEncodeOptions } from '@stencila/encoda/dist/codecs/types';
 import { ReceiveMessageRequest } from 'aws-sdk/clients/sqs';
 
+const toBool = (val?: string): boolean => !!val;
+
 const root = path.normalize(path.join(__dirname, '..', '..', '..'));
 
 if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
@@ -14,14 +16,6 @@ if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
 const config = {
   logger: {
     level: process.env.NODE_ENV !== 'production' ? 'debug' : 'info',
-  },
-  stencila: {
-    options: <CommonEncodeOptions> {
-      isBundle: false,
-      isStandalone: true,
-      shouldZip: 'no',
-      format: 'json',
-    },
   },
   aws: {
     secrets: {
@@ -58,7 +52,26 @@ const config = {
     },
   },
   paths: {
+    root,
     tempFolder: path.join(root, 'tmp'),
+    dataFolder: path.join(root, 'data'),
+  },
+  fs: {
+    createFoldersRecursivelyFlag: toBool(process.env.FS_RECURSIVE_FORCE) ?? process.env.NODE_ENV !== 'production',
+    writeStreamOptions: {
+      autoClose: true,
+    },
+    readStreamOptions: {
+      autoClose: true,
+    },
+  },
+  stencila: {
+    options: <CommonEncodeOptions> {
+      isBundle: false,
+      isStandalone: true,
+      shouldZip: 'no',
+      format: 'json',
+    },
   },
 };
 

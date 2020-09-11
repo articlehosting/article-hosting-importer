@@ -24,7 +24,7 @@ class SQSService extends Service {
     this.logger.log(Level.info, `Message ${message.messageId} was removed from queue.`);
   }
 
-  async decodeContent(message: SQSMessageModel<S3Event>): Promise<S3EventModel> {
+  public decodeContent(message: SQSMessageModel<S3Event>): S3EventModel {
     return new S3EventModel(this.logger, message.body);
   }
 }

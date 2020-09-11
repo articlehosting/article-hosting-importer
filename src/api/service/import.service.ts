@@ -33,14 +33,12 @@ class ImportService extends Service {
     this.logger.log<Message>(Level.debug, 'message', message.message);
     await this.sqsService.removeMessage(message);
 
-    const context = await this.sqsService.decodeContent(message);
+    const context = this.sqsService.decodeContent(message);
 
     const zipFile = await this.importS3Adapter.download(context.objectKey);
-
-    // this.logger.log(Level.debug, 'message--->', context);
-
     console.log(zipFile);
 
+    // this.logger.log(Level.debug, 'message--->', context);
     // download zip from s3
     // unzip zip
     // convert xml & upload to article.storage
