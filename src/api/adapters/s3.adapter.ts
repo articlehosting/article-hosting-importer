@@ -1,5 +1,5 @@
 import path from 'path';
-import S3, { ClientConfiguration } from 'aws-sdk/clients/s3';
+import S3, { ClientConfiguration, PutObjectRequest } from 'aws-sdk/clients/s3';
 import Adapter from '../abstract/adapter';
 import config from '../config';
 import FileModel from '../models/file.model';
@@ -52,9 +52,19 @@ class S3Adapter extends Adapter {
     return this.fsService.writeToFile(filename, readStream);
   }
 
-  // async upload(s3ObjectModel: FileModel): Promise<FileModel> {
-  //   // this.s3.upload()
-  // }
+  async upload(file: FileModel): Promise<FileModel> {
+    const readStream = this.fsService.readFromFile(file);
+
+    const uploadParams = <PutObjectRequest>{
+      Bucket: this.bucketName,
+      Key: file.basename,
+      Body: readStream,
+    };
+
+    await this.s3.upload(uploadParams);
+
+    return file;
+  }
 }
 
 export default S3Adapter;

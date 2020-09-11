@@ -6,6 +6,7 @@ import FileModel from '../models/file.model';
 
 class FileSystemService extends Service {
   async writeToFile(filename: string, readStream: Readable): Promise<FileModel> {
+    // todo: resolve folders ..
     return new Promise((resolve, reject) => {
       const writeStream = fs.createWriteStream(filename);
 
@@ -27,6 +28,17 @@ class FileSystemService extends Service {
 
       readStream.pipe(writeStream);
     });
+  }
+
+  readFromFile(file: FileModel): Readable {
+    // todo: file.filename to file.buildFullPath ..
+    const readStream = fs.createReadStream(file.filename);
+
+    readStream.on('error', (err) => {
+      this.logger.log<Error>(Level.error, err.message, err);
+    });
+
+    return readStream;
   }
 }
 

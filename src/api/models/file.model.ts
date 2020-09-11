@@ -17,6 +17,10 @@ class FileModel extends Model {
   get filename(): string {
     return this.Filename;
   }
+
+  get basename(): string {
+    return 'basename';
+  }
 }
 
 export default FileModel;
