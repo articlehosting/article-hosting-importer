@@ -42,7 +42,7 @@ build:
 	@if [ "$(TARGET)" != prod ]; then \
 		image_tag_suffix=-dev; \
 	fi; \
-	$(DOCKER) build -t $(IMAGE):$(IMAGE_TAG)$${image_tag_suffix} . --target $(TARGET)
+	$(DOCKER) build -t $(IMAGE):$(IMAGE_TAG)$${image_tag_suffix} .
 
 install: node_modules
 
