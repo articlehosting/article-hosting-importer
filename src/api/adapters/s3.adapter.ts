@@ -47,26 +47,35 @@ class S3Adapter extends Adapter {
       Key: objectKey,
     };
 
-    this.logger.log(Level.debug, 'download s3 object', params);
+    return new Promise((resolve, reject) => {
+      this.logger.log(Level.debug, 'download s3 object', params);
 
-    const filename = path.join(config.paths.tempFolder, objectKey);
-    const readStream = this.s3.getObject(params).createReadStream();
+      const fileFullPath = path.join(config.paths.tempFolder, objectKey);
+      const readStream = this.s3.getObject(params).createReadStream();
 
-    return this.fsService.writeToFile(filename, readStream);
+      readStream.on('error', reject);
+
+      this.fsService.writeToFile(fileFullPath, readStream)
+        .then(resolve)
+        .catch(reject);
+    });
   }
 
   async upload(file: FileModel): Promise<FileModel> {
-    const readStream = this.fsService.readFromFile(file);
+    return new Promise((resolve, reject) => {
+      const readStream = this.fsService.readFromFile(file);
 
-    const uploadParams = <PutObjectRequest>{
-      Bucket: this.bucketName,
-      Key: file.basename,
-      Body: readStream,
-    };
+      const uploadParams = <PutObjectRequest>{
+        Bucket: this.bucketName,
+        Key: file.basename,
+        Body: readStream,
+      };
 
-    await this.s3.upload(uploadParams);
-
-    return file;
+      this.s3.upload(uploadParams)
+        .promise()
+        .then(() => resolve(file))
+        .catch(reject);
+    });
   }
 }
 
