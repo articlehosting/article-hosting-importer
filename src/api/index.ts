@@ -2,7 +2,7 @@ import Logable from './abstract/logable';
 import SQSAdapter from './adapters/sqs.adapter';
 import config from './config';
 import ImportService from './service/import.service';
-import LoggerService from './service/logger.service';
+import LoggerService, { Level } from './service/logger.service';
 import SQSService from './service/sqs.service';
 
 const { endpoint } = config.aws.sqs;
@@ -39,7 +39,12 @@ class ApiArticleHostingImporter extends Logable {
     const asyncQueue = [];
 
     for (const message of messages) {
-      asyncQueue.push(this.importService.processMessage(message));
+      asyncQueue.push(
+        this.importService.processMessage(message)
+          .catch((err) => {
+            this.logger.log<Error>(Level.error, err.message, err);
+          }),
+      );
     }
 
     await Promise.all(asyncQueue);
