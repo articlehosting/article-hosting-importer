@@ -4,6 +4,13 @@ COPY package.json package-lock.json /app/
 RUN npm install --production;\
     npm install typescript --save-dev;
 COPY src/ /app/
+COPY test/ /app/
+COPY .eslintignore \
+  .eslintrc.js \
+  jest.config.js \
+  tsconfig.json \
+  tsconfig.dev.json \
+  /app
 RUN npm run build
 
 FROM node:14-alpine as executor
