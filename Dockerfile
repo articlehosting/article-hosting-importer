@@ -10,7 +10,7 @@ COPY .eslintignore \
   jest.config.js \
   tsconfig.json \
   tsconfig.dev.json \
-  /app
+  /app/
 RUN npm run build
 
 FROM node:14-alpine as executor
