@@ -14,29 +14,14 @@ prod: build
 		--env-file .env \
 		$(IMAGE):$(IMAGE_TAG)
 
-lint: build
-	$(DOCKER) run --rm \
-		-v $(DATA_VOLUME)/.eslint:/app/.eslint \
-		-v $(DATA_VOLUME)/build:/app/build \
-		$(IMAGE):$(IMAGE_TAG)-dev \
-		npm run lint
+lint: install
+	npm run lint
 
-lint\:fix: build
-	$(DOCKER) run --rm \
-		-v $(DATA_VOLUME)/.eslint:/app/.eslint \
-		-v $(DATA_VOLUME)/build:/app/build \
-		-v $(DATA_VOLUME)/scripts:/app/scripts \
-		-v $(DATA_VOLUME)/src:/app/src \
-		-v $(DATA_VOLUME)/test:/app/test \
-		$(IMAGE):$(IMAGE_TAG)-dev \
-		npm run lint:fix
+lint\:fix: install
+	npm run lint:fix
 
-test: build
-	$(DOCKER) run \
-		-v $(DATA_VOLUME)/.jest:/app/.jest \
-		-v $(DATA_VOLUME)/build:/app/build \
-		$(IMAGE):$(IMAGE_TAG)-dev \
-		npm run test
+test: install
+	npm run test
 
 build:
 	@if [ "$(TARGET)" != prod ]; then \

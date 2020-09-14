@@ -20,10 +20,10 @@ jobs:
           make IMAGE_TAG=${IMAGE_TAG} TARGET=prod build
       - name: Lint
         run: |
-          make IMAGE_TAG=${IMAGE_TAG} lint
+          make lint
       - name: Test
         run: |
-          make IMAGE_TAG=${IMAGE_TAG} test
+          make test
 
       - name: Push Docker image
         run: |
