@@ -3,8 +3,8 @@ WORKDIR /app
 COPY package.json package-lock.json /app/
 RUN npm install --production;\
     npm install typescript --save-dev;
-COPY src /app/
-COPY test /app/
+COPY src/ /app/src/
+COPY test/ /app/test/
 COPY .eslintignore \
   .eslintrc.js \
   jest.config.js \
