@@ -1,4 +1,6 @@
+import path from 'path';
 import { Message } from 'aws-sdk/clients/sqs';
+import FileSystemService from './fs.service';
 import LoggerService, { Level } from './logger.service';
 import SQSService from './sqs.service';
 import Service from '../abstract/service';
@@ -14,6 +16,8 @@ class ImportService extends Service {
 
   private importS3Adapter: S3Adapter;
 
+  private fsService: FileSystemService;
+
   constructor(logger: LoggerService, sqsService: SQSService) {
     super(logger);
     this.sqsService = sqsService;
@@ -21,6 +25,7 @@ class ImportService extends Service {
     this.importS3Adapter = new S3Adapter(this.logger, {
       endpoint,
     });
+    this.fsService = new FileSystemService(this.logger);
   }
 
   // todo: store here only import related logic. (rename method to import)
@@ -31,7 +36,9 @@ class ImportService extends Service {
     const context = this.sqsService.decodeContent(message);
 
     const zipFile = await this.importS3Adapter.download(context.objectKey, context.bucketName);
-    console.log(zipFile);
+    const unzipDest = path.join(config.paths.tempFolder, 'extracted');
+    await this.fsService.createFolder(unzipDest);
+    await this.fsService.unzip(zipFile, path.join(unzipDest, zipFile.name));
 
     // this.logger.log(Level.debug, 'message--->', context);
     // download zip from s3

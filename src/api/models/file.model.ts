@@ -39,6 +39,10 @@ class FileModel extends Model {
     this.Extension = extension;
   }
 
+  get name(): string {
+    return this.Name;
+  }
+
   get extension(): string {
     return this.Extension;
   }

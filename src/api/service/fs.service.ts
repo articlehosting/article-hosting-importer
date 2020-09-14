@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Readable } from 'stream';
+import unzip from 'unzipper';
 import { Level } from './logger.service';
 import Service from '../abstract/service';
 import config from '../config';
@@ -21,7 +22,7 @@ class FileSystemService extends Service {
     });
   }
 
-  private async createFolder(folderPath: string): Promise<string> {
+  public async createFolder(folderPath: string): Promise<string> {
     return new Promise((resolve, reject) => {
       fs.mkdir(folderPath, { recursive: true }, (err, data) => {
         if (err) {
@@ -65,6 +66,18 @@ class FileSystemService extends Service {
     });
 
     return readStream;
+  }
+
+  public async unzip(file: FileModel, destination: string): Promise<void> {
+    return new Promise((resolve) => {
+      const readStream = this.readFromFile(file);
+
+      readStream.pipe(unzip.Extract({ path: destination }));
+
+      // readStream.on('close', () => resolve(file))
+
+      readStream.on('close', resolve);
+    });
   }
 }
 
