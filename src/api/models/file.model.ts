@@ -48,11 +48,8 @@ class FileModel extends Model {
   }
 
   get filename(): string {
+    // name + ext.
     return this.Filename;
-  }
-
-  get basename(): string {
-    return `${this.Filename}.${this.Extension}`;
   }
 }
 

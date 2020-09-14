@@ -2,8 +2,6 @@ import path from 'path';
 import { CommonEncodeOptions } from '@stencila/encoda/dist/codecs/types';
 import { ReceiveMessageRequest } from 'aws-sdk/clients/sqs';
 
-const toBool = (val?: string): boolean => !!val;
-
 const root = path.normalize(path.join(__dirname, '..', '..', '..'));
 
 if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
@@ -40,9 +38,6 @@ const config = {
     },
     s3: {
       endpoint: process.env.S3_ENDPOINT,
-      importStorage: {
-        bucketName: process.env.S3_IMPORT_BUCKET_NAME,
-      },
       articleStorage: {
         bucketName: process.env.S3_STORAGE_BUCKET_NAME,
       },
@@ -57,7 +52,6 @@ const config = {
     dataFolder: path.join(root, 'data'),
   },
   fs: {
-    createFoldersRecursivelyFlag: toBool(process.env.FS_RECURSIVE_FORCE) ?? process.env.NODE_ENV !== 'production',
     writeStreamOptions: {
       autoClose: true,
     },

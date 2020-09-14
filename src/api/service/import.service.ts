@@ -8,7 +8,6 @@ import { S3Event } from '../models/s3Event.model';
 import SQSMessageModel from '../models/sqsMessage.model';
 
 const { endpoint } = config.aws.s3;
-const importBucketName = config.aws.s3.importStorage.bucketName;
 
 class ImportService extends Service {
   private sqsService: SQSService;
@@ -19,23 +18,19 @@ class ImportService extends Service {
     super(logger);
     this.sqsService = sqsService;
 
-    if (!importBucketName) {
-      throw new Error(`Invalid importBucketName: ${importBucketName}`);
-    }
-
     this.importS3Adapter = new S3Adapter(this.logger, {
-      bucketName: importBucketName,
       endpoint,
     });
   }
 
+  // todo: store here only import related logic. (rename method to import)
   async processMessage(message: SQSMessageModel<S3Event>): Promise<void> {
     this.logger.log<Message>(Level.debug, 'message', message.message);
     await this.sqsService.removeMessage(message);
 
     const context = this.sqsService.decodeContent(message);
 
-    const zipFile = await this.importS3Adapter.download(context.objectKey);
+    const zipFile = await this.importS3Adapter.download(context.objectKey, context.bucketName);
     console.log(zipFile);
 
     // this.logger.log(Level.debug, 'message--->', context);

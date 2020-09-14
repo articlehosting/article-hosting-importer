@@ -12,7 +12,6 @@ class FileSystemService extends Service {
 
     segments.pop();
 
-    // const lastSegment = segments[segments.length - 1];
     return segments;
   }
 
@@ -24,7 +23,7 @@ class FileSystemService extends Service {
 
   private async createFolder(folderPath: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      fs.mkdir(folderPath, { recursive: config.fs.createFoldersRecursivelyFlag }, (err, data) => {
+      fs.mkdir(folderPath, { recursive: true }, (err, data) => {
         if (err) {
           reject(err);
         }
@@ -49,7 +48,7 @@ class FileSystemService extends Service {
           fullPath: fileFullPath,
         });
 
-        this.logger.log<FileModel>(Level.debug, `${file.basename} download complete`, file);
+        this.logger.log(Level.debug, `${file.filename} download complete`);
 
         resolve(file);
       });
@@ -59,7 +58,6 @@ class FileSystemService extends Service {
   }
 
   readFromFile(file: FileModel): Readable {
-    // todo: file.filename to file.buildFullPath ..
     const readStream = fs.createReadStream(file.filename, config.fs.readStreamOptions);
 
     readStream.on('error', (err) => {

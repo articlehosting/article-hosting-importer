@@ -7,7 +7,7 @@ import FileSystemService from '../service/fs.service';
 import LoggerService, { Level } from '../service/logger.service';
 
 interface S3AdapterOptions {
-  bucketName: string;
+  bucketName?: string;
   endpoint?: string
 }
 
@@ -16,24 +16,27 @@ class S3Adapter extends Adapter {
 
   private fsService: FileSystemService;
 
-  private bucketName: string;
+  private bucketName?: string;
 
   private endpoint?: string;
 
   constructor(logger: LoggerService, options: S3AdapterOptions) {
     super(logger);
 
+    if (options.bucketName) {
+      this.bucketName = options.bucketName;
+    }
+
     if (options.endpoint) {
       this.endpoint = options.endpoint;
     }
-
-    this.bucketName = options.bucketName;
 
     const s3Options = <ClientConfiguration>{
       ...(config.aws.secrets),
       ...(this.endpoint ? {
         endpoint: this.endpoint,
-        s3BucketEndpoint: true,
+        s3ForcePathStyle: true,
+        signatureVersion: 'v4',
       } : {}),
     };
 
@@ -41,9 +44,21 @@ class S3Adapter extends Adapter {
     this.fsService = new FileSystemService(this.logger);
   }
 
-  async download(objectKey: string): Promise<FileModel> {
+  resolveBucketName(bucketName?:string): string {
+    const bucket = bucketName ?? this.bucketName;
+
+    if (!bucket) {
+      throw new Error(`Invalid bucket name ${bucket}`);
+    }
+
+    return bucket;
+  }
+
+  async download(objectKey: string, bucketName?: string): Promise<FileModel> {
+    const Bucket = this.resolveBucketName(bucketName);
+
     const params = {
-      Bucket: this.bucketName,
+      Bucket,
       Key: objectKey,
     };
 
@@ -61,13 +76,15 @@ class S3Adapter extends Adapter {
     });
   }
 
-  async upload(file: FileModel): Promise<FileModel> {
+  async upload(file: FileModel, bucketName?: string): Promise<FileModel> {
+    const Bucket = this.resolveBucketName(bucketName);
+
     return new Promise((resolve, reject) => {
       const readStream = this.fsService.readFromFile(file);
 
       const uploadParams = <PutObjectRequest>{
-        Bucket: this.bucketName,
-        Key: file.basename,
+        Bucket,
+        Key: file.filename,
         Body: readStream,
       };
 

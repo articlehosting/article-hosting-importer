@@ -122,15 +122,15 @@ dist
 data/*
 
 #data/hive-article-hosting-import--curie/*
-#!data/hive-article-hosting-import--curie/ijm-articles
-#!data/hive-article-hosting-import--curie/biorhive-articles
+#!data/hive-article-hosting-import--curie/ijm
+#!data/hive-article-hosting-import--curie/biorhive
 #
-#data/hive-article-hosting-import--curie/ijm-articles/*
-#!data/hive-article-hosting-import--curie/ijm-articles/ijm-00202.zip
+#data/hive-article-hosting-import--curie/ijm/*
+#!data/hive-article-hosting-import--curie/ijm/ijm-00202.zip
 #
-#data/hive-article-hosting-import--curie/biorhive-articles/*
-#!data/hive-article-hosting-import--curie/biorhive-articles/*.zip
+#data/hive-article-hosting-import--curie/biorhive/*
+#!data/hive-article-hosting-import--curie/biorhive/*.zip
 
 !data/.gitkeep
-!data/hive-article-hosting-import--curie/ijm-articles/ijm-00202.zip
+!data/hive-article-hosting-import--curie/ijm/ijm-00202.zip
 !data/hive-article-hosting-import--curie/biorhive-articles/*.zip
