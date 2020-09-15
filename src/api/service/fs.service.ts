@@ -34,7 +34,7 @@ class FileSystemService extends Service {
     });
   }
 
-  async writeToFile(fileFullPath: string, readStream: Readable): Promise<FileModel> {
+  public async writeToFile(fileFullPath: string, readStream: Readable): Promise<FileModel> {
     if (!await this.checkAccess(fileFullPath)) {
       await this.createFolder(path.join(...this.decoupleFile(fileFullPath)));
     }
@@ -58,8 +58,8 @@ class FileSystemService extends Service {
     });
   }
 
-  readFromFile(file: FileModel): Readable {
-    const readStream = fs.createReadStream(file.filename, config.fs.readStreamOptions);
+  public readFromFile(file: FileModel): Readable {
+    const readStream = fs.createReadStream(file.fullPath, config.fs.readStreamOptions);
 
     readStream.on('error', (err) => {
       this.logger.log<Error>(Level.error, err.message, err);

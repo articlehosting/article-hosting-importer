@@ -38,7 +38,7 @@ class ImportService extends Service {
     const zipFile = await this.importS3Adapter.download(context.objectKey, context.bucketName);
     const unzipDest = path.join(config.paths.tempFolder, 'extracted');
     await this.fsService.createFolder(unzipDest);
-    await this.fsService.unzip(zipFile, path.join(unzipDest, zipFile.name));
+    await this.fsService.unzip(zipFile, unzipDest);
 
     // this.logger.log(Level.debug, 'message--->', context);
     // download zip from s3
