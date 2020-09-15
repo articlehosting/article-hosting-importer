@@ -51,7 +51,7 @@ class ImportService extends Service {
     if (!extracted || !extracted.length) {
       throw new Error('Unable to extract zip content');
     }
-
+    console.log(extracted);
     const xmlFile = extracted.find((file) => file.extension === XML);
 
     if (!xmlFile) {

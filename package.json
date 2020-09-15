@@ -12,11 +12,11 @@
     ]
   },
   "dependencies": {
-    "@stencila/encoda": "0.99.5",
-    "aws-sdk": "2.739.0",
-    "mongodb": "3.6.0",
+    "@stencila/encoda": "^0.99.6",
+    "aws-sdk": "^2.739.0",
+    "mongodb": "^3.6.0",
     "unzipper": "^0.10.11",
-    "winston": "3.3.3"
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "@types/jest": "^26.0.5",
