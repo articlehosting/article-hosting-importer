@@ -1,6 +1,7 @@
 import { Message, MessageAttributeValue } from 'aws-sdk/clients/sqs';
 import Model from '../abstract/model';
 import LoggerService, { Level } from '../service/logger.service';
+import { decodeJSONContent, objectIsEmpty } from '../utils';
 
 class SQSMessageModel<T> extends Model {
   private Message: Message;
@@ -58,13 +59,13 @@ class SQSMessageModel<T> extends Model {
   }
 
   private decodeBody<T>(): T {
-    try {
-      return <T>JSON.parse(this.OriginalBody);
-    } catch (err) {
-      this.logger.log<Error>(Level.error, `Unable to parse body "${this.OriginalBody}"`, err);
+    const body = decodeJSONContent<T>(this.OriginalBody);
 
-      return <T>{};
+    if (objectIsEmpty(body)) {
+      this.logger.log(Level.error, `Unable to parse body "${this.OriginalBody}"`);
     }
+
+    return body;
   }
 }
 

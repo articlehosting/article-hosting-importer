@@ -68,6 +68,38 @@ class FileSystemService extends Service {
     return readStream;
   }
 
+  public async readFileContents(file: FileModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      fs.readFile(file.fullPath, 'utf-8', (err, content) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(content);
+      });
+    });
+  }
+
+  public async getFolderFiles(folderPath: string): Promise<Array<FileModel>> {
+    return new Promise((resolve, reject) => {
+      fs.readdir(folderPath, { withFileTypes: true }, (err, dirents: Array<fs.Dirent>) => {
+        if (err) {
+          return reject(err);
+        }
+        const files: Array<FileModel> = [];
+
+        for (const dirent of dirents) {
+          if (dirent.isFile()) {
+            const fullPath = path.normalize(path.join(folderPath, dirent.name));
+
+            files.push(new FileModel(this.logger, { fullPath }));
+          }
+        }
+
+        return resolve(files);
+      });
+    });
+  }
+
   public async unzip(file: FileModel, destination: string): Promise<void> {
     return new Promise((resolve) => {
       const readStream = this.readFromFile(file);
