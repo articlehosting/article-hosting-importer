@@ -312,7 +312,7 @@ class ArticleModel extends Model {
     return this.getArticleIdentifier(CONTENT_IDENTIFIER_PUBLISHERID);
   }
 
-  public getFiles(): Array<ArticleFile> {
+  public buildFiles(): Array<ArticleFile> {
     return this.files.map((file) => ({
       type: `${file.extension.toLocaleUpperCase()}Object`,
       name: file.name,

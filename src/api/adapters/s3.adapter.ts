@@ -76,7 +76,7 @@ class S3Adapter extends Adapter {
     });
   }
 
-  async upload(file: FileModel, bucketName?: string): Promise<FileModel> {
+  async upload(key: string, file: FileModel, bucketName?: string): Promise<FileModel> {
     const Bucket = this.resolveBucketName(bucketName);
 
     return new Promise((resolve, reject) => {
@@ -84,7 +84,7 @@ class S3Adapter extends Adapter {
 
       const uploadParams = <PutObjectRequest>{
         Bucket,
-        Key: file.filename,
+        Key: key,
         Body: readStream,
       };
 
