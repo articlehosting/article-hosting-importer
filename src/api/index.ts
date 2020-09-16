@@ -30,11 +30,22 @@ class ApiArticleHostingImporter extends Logable {
   }
 
   async process(): Promise<void> {
+    this.logger.log(Level.info, 'watching queue for a job');
+
     const messages = await this.sqsService.getMessages();
 
     if (!Array.isArray(messages) || messages.length === 0) {
+      this.logger.log(Level.info, 'No messages in queue. Exiting!');
       return;
     }
+
+    const messagesIds = messages.map((message) => message.messageId);
+
+    this.logger.log<Array<string>>(
+      Level.info,
+      `process messages in parallel. number of concurrent articles is '${config.aws.sqs.defaultParams.MaxNumberOfMessages}'`,
+      messagesIds,
+    );
 
     const asyncQueue = [];
 
@@ -48,6 +59,13 @@ class ApiArticleHostingImporter extends Logable {
     }
 
     await Promise.all(asyncQueue);
+
+    this.logger.log<Array<string>>(
+      Level.info,
+      'set of messages processed!',
+      messagesIds,
+    );
+
     await this.process();
   }
 }
