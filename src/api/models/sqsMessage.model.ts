@@ -1,22 +1,24 @@
 import { Message, MessageAttributeValue } from 'aws-sdk/clients/sqs';
 import Model from '../abstract/model';
-import LoggerService, { Level } from '../service/logger.service';
-import { decodeJSONContent, objectIsEmpty } from '../utils';
+import DecoderService from '../service/decoder.service';
+import LoggerService from '../service/logger.service';
 
 class SQSMessageModel<T> extends Model {
-  private Message: Message;
+  private readonly Message: Message;
 
-  private MessageId: string;
+  private readonly MessageId: string;
 
-  private ReceiptHandle: string;
+  private readonly ReceiptHandle: string;
 
-  private Attributes: {[key: string]: string};
+  private readonly Attributes: {[key: string]: string};
 
-  private MessageAttributes: {[key: string]: MessageAttributeValue};
+  private readonly MessageAttributes: {[key: string]: MessageAttributeValue};
 
-  private OriginalBody: string;
+  private readonly OriginalBody: string;
 
-  private Body: T;
+  private readonly Body: T;
+
+  private readonly decoderService: DecoderService;
 
   constructor(logger: LoggerService, message: Message) {
     super(logger);
@@ -28,6 +30,8 @@ class SQSMessageModel<T> extends Model {
     this.OriginalBody = message.Body ?? '';
 
     this.Body = this.decodeBody<T>();
+
+    this.decoderService = new DecoderService(this.logger);
   }
 
   get message(): Message {
@@ -59,11 +63,12 @@ class SQSMessageModel<T> extends Model {
   }
 
   private decodeBody<T>(): T {
-    const body = decodeJSONContent<T>(this.OriginalBody);
+    const body = this.decoderService.decodeJSON<T>(this.OriginalBody);
 
-    if (objectIsEmpty(body)) {
-      this.logger.log(Level.error, `Unable to parse body "${this.OriginalBody}"`);
-    }
+    // todo: ?check parsed body ...
+    // if (objectIsEmpty(body)) {
+    //   this.logger.log(Level.error, `Unable to parse body "${this.OriginalBody}"`);
+    // }
 
     return body;
   }

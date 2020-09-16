@@ -25,6 +25,7 @@ class SQSService extends Service {
   }
 
   public decodeContent(message: SQSMessageModel<S3Event>): S3EventModel {
+    // todo: implement check message.body
     return new S3EventModel(this.logger, message.body);
   }
 }
