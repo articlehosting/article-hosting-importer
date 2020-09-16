@@ -1,6 +1,8 @@
+import fs from 'fs';
 import path from 'path';
 import { CommonEncodeOptions } from '@stencila/encoda/dist/codecs/types';
 import { ReceiveMessageRequest } from 'aws-sdk/clients/sqs';
+import { MongoClientOptions } from 'mongodb';
 
 const root = path.normalize(path.join(__dirname, '..', '..', '..'));
 
@@ -10,6 +12,15 @@ if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
     path: path.join(root, '.env'),
   });
 }
+
+const sslOptions = process.env.NODE_ENV === 'production' ? {
+  sslValidate: true,
+  sslCA: [fs.readFileSync('rds-combined-ca-bundle.pem')],
+  auth: {
+    user: process.env.DOCDB_USER ?? '',
+    password: process.env.DOCDB_PASS ?? '',
+  },
+} : {};
 
 const config = {
   logger: {
@@ -44,6 +55,17 @@ const config = {
       archiveStorage: {
         bucketName: process.env.S3_ARCHIVE_BUCKET_NAME,
       },
+    },
+  },
+  db: {
+    mongoUrl: process.env.CONNECTION_STRING ?? 'mongodb://localhost:27017/articleHosting',
+    options: <MongoClientOptions>{
+      poolSize: 10,
+      numberOfRetries: 5,
+      keepAlive: true,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      ...sslOptions,
     },
   },
   paths: {

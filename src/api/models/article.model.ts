@@ -151,42 +151,51 @@ export interface ArticleModelData {
   files: Array<FileModel>
 }
 
+export interface ArticleFile {
+  type: string,
+  name: string,
+  extension: string,
+  contentUrl: string,
+}
+
 class ArticleModel extends Model {
-  private Type: string;
+  private readonly CollectionName = 'articles';
 
-  private Title: string;
+  private readonly Type: string;
 
-  private Authors: Array<ArticleAuthor>;
+  private readonly Title: string;
 
-  private About: Array<ArticleAbout>;
+  private readonly Authors: Array<ArticleAuthor>;
 
-  private Description: Array<ArticleContents>;
+  private readonly About: Array<ArticleAbout>;
 
-  private Content: Array<ArticleContents | TableContent | ImageObjectContent>;
+  private readonly Description: Array<ArticleContents>;
 
-  private DatePublished: ArticleDatePublished;
+  private readonly Content: Array<ArticleContents | TableContent | ImageObjectContent>;
 
-  private IsPartOf: ArticlePartOf;
+  private readonly DatePublished: ArticleDatePublished;
 
-  private Identifiers: Array<ArticleIdentifier>;
+  private readonly IsPartOf: ArticlePartOf;
 
-  private Keywords: Array<string>;
+  private readonly Identifiers: Array<ArticleIdentifier>;
 
-  private Licenses: Array<ArticleLicense>;
+  private readonly Keywords: Array<string>;
 
-  private References: Array<ArticleReference>;
+  private readonly Licenses: Array<ArticleLicense>;
 
-  private Meta: ArticleMeta;
+  private readonly References: Array<ArticleReference>;
 
-  private Genre: Array<string>;
+  private readonly Meta: ArticleMeta;
 
-  private PageStart: string | number;
+  private readonly Genre: Array<string>;
 
-  private PageEnd: string | number;
+  private readonly PageStart: string | number;
 
-  private OriginalData: Article;
+  private readonly PageEnd: string | number;
 
-  private Files: Array<FileModel>;
+  private readonly OriginalData: Article;
+
+  private readonly Files: Array<FileModel>;
 
   constructor(logger: LoggerService, data: ArticleModelData) {
     super(logger);
@@ -209,6 +218,10 @@ class ArticleModel extends Model {
     this.PageEnd = data.article.pageEnd;
     this.OriginalData = data.article;
     this.Files = data.files;
+  }
+
+  get collectionName(): string {
+    return this.CollectionName;
   }
 
   get type(): string {
@@ -291,12 +304,21 @@ class ArticleModel extends Model {
     return null;
   }
 
-  getDOI(): string | null {
+  public getDOI(): string | null {
     return this.getArticleIdentifier(CONTENT_IDENTIFIER_DOI);
   }
 
-  getPublisherID(): string | null {
+  public getPublisherID(): string | null {
     return this.getArticleIdentifier(CONTENT_IDENTIFIER_PUBLISHERID);
+  }
+
+  public getFiles(): Array<ArticleFile> {
+    return this.files.map((file) => ({
+      type: `${file.extension.toLocaleUpperCase()}Object`,
+      name: file.name,
+      extension: file.extension,
+      contentUrl: file.filename,
+    }));
   }
 }
 

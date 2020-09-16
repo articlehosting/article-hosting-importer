@@ -1,4 +1,5 @@
 import Logable from './abstract/logable';
+import DatabaseAdapter from './adapters/db.adapter';
 import SQSAdapter from './adapters/sqs.adapter';
 import config from './config';
 import ImportService from './service/import.service';
@@ -8,11 +9,13 @@ import SQSService from './service/sqs.service';
 const { endpoint } = config.aws.sqs;
 
 class ApiArticleHostingImporter extends Logable {
-  private sqsAdapter: SQSAdapter;
+  private readonly sqsAdapter: SQSAdapter;
 
-  private sqsService: SQSService;
+  private readonly dbAdapter: DatabaseAdapter;
 
-  private importService: ImportService;
+  private readonly sqsService: SQSService;
+
+  private readonly importService: ImportService;
 
   constructor(logger: LoggerService) {
     super(logger);
@@ -25,8 +28,10 @@ class ApiArticleHostingImporter extends Logable {
       },
     );
 
+    this.dbAdapter = new DatabaseAdapter(this.logger);
+
     this.sqsService = new SQSService(this.logger, this.sqsAdapter);
-    this.importService = new ImportService(this.logger, this.sqsService);
+    this.importService = new ImportService(this.logger, this.sqsService, this.dbAdapter);
   }
 
   async process(): Promise<void> {

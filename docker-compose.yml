@@ -16,3 +16,8 @@ services:
     environment:
       MINIO_ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
       MINIO_SECRET_KEY: ${AWS_SECRET_ACCESS_KEY}
+  mongo-alpine:
+    image: mvertes/alpine-mongo:3.6.5-0
+    restart: always
+    ports:
+      - 27017:27017

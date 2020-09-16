@@ -6,6 +6,7 @@ import LoggerService, { Level } from './logger.service';
 import SQSService from './sqs.service';
 import StencilaService from './stencila.service';
 import Service from '../abstract/service';
+import DatabaseAdapter from '../adapters/db.adapter';
 import S3Adapter from '../adapters/s3.adapter';
 import config from '../config';
 import ArticleModel, { Article } from '../models/article.model';
@@ -18,6 +19,8 @@ const XML = 'xml';
 class ImportService extends Service {
   private readonly sqsService: SQSService;
 
+  private readonly dbAdapter: DatabaseAdapter;
+
   private readonly importS3Adapter: S3Adapter;
 
   private readonly fsService: FileSystemService;
@@ -26,9 +29,10 @@ class ImportService extends Service {
 
   private readonly stencilaService: StencilaService;
 
-  constructor(logger: LoggerService, sqsService: SQSService) {
+  constructor(logger: LoggerService, sqsService: SQSService, dbAdapter: DatabaseAdapter) {
     super(logger);
     this.sqsService = sqsService;
+    this.dbAdapter = dbAdapter;
     this.importS3Adapter = new S3Adapter(this.logger, {
       endpoint,
     });
@@ -69,13 +73,20 @@ class ImportService extends Service {
       files: extracted,
     });
 
-    console.log(article);
+    const doi = article.getDOI();
 
-    // this.logger.log(Level.debug, 'message--->', context);
-    // download zip from s3
-    // unzip zip
-    // convert xml & upload to article.storage
-    // insert to db
+    if (!doi) {
+      throw new Error(`Invalid article identifier doi: ${doi}`);
+    }
+
+    this.logger.log(Level.debug, 'insert article to db');
+    await (await this.dbAdapter.collection(article.collectionName)).updateOne({ _id: doi }, {
+      $set: {
+        ...decoded,
+        files: article.getFiles(),
+        _id: doi,
+      },
+    }, { upsert: true });
   }
 }
 
