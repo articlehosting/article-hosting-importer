@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Readable } from 'stream';
-import unzip from 'unzipper';
+import extractzip from 'extract-zip';
 import { Level } from './logger.service';
 import Service from '../abstract/service';
 import config from '../config';
@@ -74,6 +74,7 @@ class FileSystemService extends Service {
         if (err) {
           return reject(err);
         }
+
         return resolve(content);
       });
     });
@@ -85,6 +86,7 @@ class FileSystemService extends Service {
         if (err) {
           return reject(err);
         }
+
         const files: Array<FileModel> = [];
 
         for (const dirent of dirents) {
@@ -100,16 +102,20 @@ class FileSystemService extends Service {
     });
   }
 
-  public async unzip(file: FileModel, destination: string): Promise<void> {
-    return new Promise((resolve) => {
-      const readStream = this.readFromFile(file);
+  // public async unzip(file: FileModel, destination: string): Promise<void> {
+  //   return new Promise((resolve) => {
+  //     const readStream = this.readFromFile(file);
+  //
+  //     readStream.pipe(unzip.Extract({ path: destination }));
+  //
+  //     // readStream.on('close', () => resolve(file))
+  //
+  //     readStream.on('close', resolve);
+  //   });
+  // }
 
-      readStream.pipe(unzip.Extract({ path: destination }));
-
-      // readStream.on('close', () => resolve(file))
-
-      readStream.on('close', resolve);
-    });
+  public async extract(zipFile: FileModel, destination: string): Promise<void> {
+    return extractzip(zipFile.fullPath, { dir: destination });
   }
 }
 

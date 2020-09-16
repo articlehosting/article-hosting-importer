@@ -44,14 +44,14 @@ class ImportService extends Service {
     const zipFile = await this.importS3Adapter.download(context.objectKey, context.bucketName);
     const unzipDest = path.join(config.paths.tempFolder, 'extracted');
     await this.fsService.createFolder(unzipDest);
-    await this.fsService.unzip(zipFile, unzipDest);
-
+    await this.fsService.extract(zipFile, unzipDest);
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     const extracted = await this.fsService.getFolderFiles(path.join(unzipDest, zipFile.name));
 
     if (!extracted || !extracted.length) {
       throw new Error('Unable to extract zip content');
     }
-    console.log(extracted);
+
     const xmlFile = extracted.find((file) => file.extension === XML);
 
     if (!xmlFile) {

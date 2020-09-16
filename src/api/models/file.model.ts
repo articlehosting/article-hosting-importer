@@ -1,3 +1,4 @@
+import path from 'path';
 import Model from '../abstract/model';
 import LoggerService from '../service/logger.service';
 
@@ -6,13 +7,15 @@ export interface FileData {
 }
 
 class FileModel extends Model {
-  private FullPath: string;
+  private readonly FullPath: string;
 
-  private Name: string;
+  private readonly Name: string;
 
-  private Filename: string;
+  private readonly Filename: string;
 
-  private Extension: string;
+  private readonly Extension: string;
+
+  private readonly FolderPath: string;
 
   constructor(logger: LoggerService, data: FileData) {
     super(logger);
@@ -26,6 +29,10 @@ class FileModel extends Model {
     }
 
     const filename = segments[segments.length - 1];
+
+    segments.pop();
+
+    this.FolderPath = path.join(...segments);
 
     this.Filename = filename;
 
@@ -54,6 +61,10 @@ class FileModel extends Model {
   get filename(): string {
     // name + ext.
     return this.Filename;
+  }
+
+  get folderPath(): string {
+    return this.FolderPath;
   }
 }
 

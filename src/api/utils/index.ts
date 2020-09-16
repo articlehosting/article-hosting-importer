@@ -20,3 +20,8 @@ export const objectIsEmpty = (obj: any): boolean => {
 
   return true;
 };
+
+export default {
+  decodeJSONContent,
+  objectIsEmpty,
+};
