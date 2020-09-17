@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Readable } from 'stream';
+import rimraf from 'rimraf';
 import { Level } from './logger.service';
 import Service from '../abstract/service';
 import config from '../config';
@@ -98,6 +99,12 @@ class FileSystemService extends Service {
 
         return resolve(files);
       });
+    });
+  }
+
+  public async removeFolder(folderPath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      rimraf(folderPath, (error) => (error ? reject(error) : resolve()));
     });
   }
 }

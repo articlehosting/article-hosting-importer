@@ -4,11 +4,12 @@ import Processor from '../abstract/processor';
 import DatabaseAdapter from '../adapters/db.adapter';
 import S3Adapter from '../adapters/s3.adapter';
 import config from '../config';
-import { XML_EXT } from '../constants';
+import { XML_EXT, ZIP_EXT } from '../constants';
 import ArticleModel, { Article } from '../models/article.model';
 import FileModel from '../models/file.model';
 import S3EventModel, { S3Event } from '../models/s3-event.model';
 import SQSMessageModel from '../models/sqs-message.model';
+import CleanerService from '../service/cleaner.service';
 import DecodeService from '../service/decode.service';
 import ExtractService from '../service/extract.service';
 import FileSystemService from '../service/fs.service';
@@ -39,6 +40,8 @@ class SQSMessageProcessor extends Processor {
 
   private readonly importService: ImportService;
 
+  private readonly cleanerService: CleanerService;
+
   private readonly importS3Adapter: S3Adapter;
 
   private Message?: SQSMessageModel<S3Event>;
@@ -54,6 +57,7 @@ class SQSMessageProcessor extends Processor {
     this.stencilaService = new StencilaService(this.logger);
     this.decodeService = new DecodeService(this.logger);
     this.importService = new ImportService(this.logger, this.sqsService, this.dbAdapter);
+    this.cleanerService = new CleanerService(this.logger);
 
     this.importS3Adapter = new S3Adapter(this.logger, {
       endpoint,
@@ -76,9 +80,8 @@ class SQSMessageProcessor extends Processor {
     await this.sqsService.removeMessage(this.Message);
     const context = this.sqsService.decodeContent(this.Message);
     const files = await this.processSourceFile(context);
-    const xmlFile = this.getXMLFile(files);
 
-    const jsonFile = await this.stencilaService.convert(xmlFile);
+    const jsonFile = await this.stencilaService.convert(this.fetchFileByExtension(files, XML_EXT));
 
     const article = await this.decodeArticleFrom(jsonFile);
 
@@ -88,6 +91,7 @@ class SQSMessageProcessor extends Processor {
     });
 
     await this.importService.importArticle(articleModel);
+    await this.cleanerService.clean(this.fetchFileByExtension(files, ZIP_EXT));
   }
 
   private async processSourceFile({ objectKey, bucketName }: S3EventModel): Promise<Array<FileModel>> {
@@ -120,14 +124,14 @@ class SQSMessageProcessor extends Processor {
     };
   }
 
-  private getXMLFile(files: Array<FileModel>): FileModel {
-    const xmlFile = files.find((file) => file.extension === XML_EXT);
+  private fetchFileByExtension(files: Array<FileModel>, extension: string): FileModel {
+    const file = files.find((f) => f.extension === extension);
 
-    if (!xmlFile) {
-      throw new Error('Unable to find source xml file');
+    if (!file) {
+      throw new Error(`Unable to find file with extension ${extension}`);
     }
 
-    return xmlFile;
+    return file;
   }
 
   private async decodeArticleFrom(jsonFile: FileModel): Promise<Article> {

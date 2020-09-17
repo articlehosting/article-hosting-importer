@@ -61,6 +61,7 @@ class ImportService extends Service {
 
     for (const file of article.files) {
       if (!config.importFilesWhiteList.includes(file.extension)) {
+        // @todo: Rework below
         const objectKey = `articles/${publisherId}/${file.filename}`;
 
         asyncQueue.push(this.storageS3Adapter.upload({ objectKey }, file));
