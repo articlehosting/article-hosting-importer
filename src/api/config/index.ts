@@ -3,6 +3,7 @@ import path from 'path';
 import { CommonEncodeOptions } from '@stencila/encoda/dist/codecs/types';
 import { ReceiveMessageRequest } from 'aws-sdk/clients/sqs';
 import { MongoClientOptions } from 'mongodb';
+import { JSON_EXT, XML_EXT, ZIP_EXT } from '../constants';
 
 const root = path.normalize(path.join(__dirname, '..', '..', '..'));
 
@@ -89,6 +90,11 @@ const config = {
       format: 'json',
     },
   },
+  importFilesWhiteList: [
+    XML_EXT,
+    JSON_EXT,
+    ZIP_EXT,
+  ],
 };
 
 export default config;

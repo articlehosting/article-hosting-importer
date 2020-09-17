@@ -2,7 +2,7 @@ import Logable from './abstract/logable';
 import DatabaseAdapter from './adapters/db.adapter';
 import SQSAdapter from './adapters/sqs.adapter';
 import config from './config';
-import ImportService from './service/import.service';
+import SQSMessageProcessor from './processors/sqs-message.processor';
 import LoggerService, { Level } from './service/logger.service';
 import SQSService from './service/sqs.service';
 
@@ -14,8 +14,6 @@ class ApiArticleHostingImporter extends Logable {
   private readonly dbAdapter: DatabaseAdapter;
 
   private readonly sqsService: SQSService;
-
-  private readonly importService: ImportService;
 
   constructor(logger: LoggerService) {
     super(logger);
@@ -31,7 +29,6 @@ class ApiArticleHostingImporter extends Logable {
     this.dbAdapter = new DatabaseAdapter(this.logger);
 
     this.sqsService = new SQSService(this.logger, this.sqsAdapter);
-    this.importService = new ImportService(this.logger, this.sqsService, this.dbAdapter);
   }
 
   async process(): Promise<void> {
@@ -56,7 +53,9 @@ class ApiArticleHostingImporter extends Logable {
 
     for (const message of messages) {
       asyncQueue.push(
-        this.importService.processMessage(message)
+        (new SQSMessageProcessor(this.logger, this.sqsService, this.dbAdapter))
+          .withMessage(message)
+          .processMessage()
           .catch((err) => {
             this.logger.log<Error>(Level.error, err.message, err);
           }),

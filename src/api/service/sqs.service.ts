@@ -1,8 +1,8 @@
 import LoggerService, { Level } from './logger.service';
 import Service from '../abstract/service';
 import SQSAdapter from '../adapters/sqs.adapter';
-import S3EventModel, { S3Event } from '../models/s3Event.model';
-import SQSMessageModel from '../models/sqsMessage.model';
+import S3EventModel, { S3Event } from '../models/s3-event.model';
+import SQSMessageModel from '../models/sqs-message.model';
 
 class SQSService extends Service {
   private sqsAdapter: SQSAdapter;

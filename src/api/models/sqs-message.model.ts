@@ -1,6 +1,6 @@
 import { Message, MessageAttributeValue } from 'aws-sdk/clients/sqs';
 import Model from '../abstract/model';
-import DecoderService from '../service/decoder.service';
+import DecodeService from '../service/decode.service';
 import LoggerService from '../service/logger.service';
 
 class SQSMessageModel<T> extends Model {
@@ -18,11 +18,11 @@ class SQSMessageModel<T> extends Model {
 
   private readonly Body: T;
 
-  private readonly decoderService: DecoderService;
+  private readonly decoderService: DecodeService;
 
   constructor(logger: LoggerService, message: Message) {
     super(logger);
-    this.decoderService = new DecoderService(this.logger);
+    this.decoderService = new DecodeService(this.logger);
 
     this.Message = message;
     this.MessageId = message.MessageId ?? '';

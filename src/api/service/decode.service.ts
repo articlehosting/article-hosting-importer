@@ -1,6 +1,6 @@
 import Service from '../abstract/service';
 
-class DecoderService extends Service {
+class DecodeService extends Service {
   public decodeJSON<T>(encoded: string | Buffer): T {
     const temp: string = encoded instanceof Buffer ? encoded.toString() : encoded;
 
@@ -12,4 +12,4 @@ class DecoderService extends Service {
   }
 }
 
-export default DecoderService;
+export default DecodeService;

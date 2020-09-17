@@ -6,7 +6,7 @@ import Adapter from '../abstract/adapter';
 import config from '../config';
 import LoggerService, { Level } from '../service/logger.service';
 
-export interface SqsAdapterOptions {
+export interface SQSAdapterOptions {
   queueName: string;
   endpoint?: string;
 }
@@ -20,7 +20,7 @@ class SQSAdapter extends Adapter {
 
   private queueUrl?: string;
 
-  constructor(logger: LoggerService, options: SqsAdapterOptions) {
+  constructor(logger: LoggerService, options: SQSAdapterOptions) {
     super(logger);
 
     this.name = options.queueName;

@@ -1,4 +1,3 @@
-import path from 'path';
 import S3, { ClientConfiguration, PutObjectRequest } from 'aws-sdk/clients/s3';
 import Adapter from '../abstract/adapter';
 import config from '../config';
@@ -12,13 +11,13 @@ interface S3AdapterOptions {
 }
 
 class S3Adapter extends Adapter {
-  private s3: S3;
+  private readonly s3: S3;
 
-  private fsService: FileSystemService;
+  private readonly fsService: FileSystemService;
 
-  private bucketName?: string;
+  private readonly bucketName?: string;
 
-  private endpoint?: string;
+  private readonly endpoint?: string;
 
   constructor(logger: LoggerService, options: S3AdapterOptions) {
     super(logger);
@@ -44,47 +43,42 @@ class S3Adapter extends Adapter {
     this.fsService = new FileSystemService(this.logger);
   }
 
-  resolveBucketName(bucketName?:string): string {
-    const bucket = bucketName ?? this.bucketName;
+  async download(
+    params: { objectKey: string, bucketName?: string, },
+    destinationFile: string,
+  ): Promise<FileModel> {
+    const Bucket = this.resolveBucketName(params.bucketName);
 
-    if (!bucket) {
-      throw new Error(`Invalid bucket name ${bucket}`);
-    }
-
-    return bucket;
-  }
-
-  async download(objectKey: string, bucketName?: string): Promise<FileModel> {
-    const Bucket = this.resolveBucketName(bucketName);
-
-    const params = {
+    const downloadParams = {
+      Key: params.objectKey,
       Bucket,
-      Key: objectKey,
     };
 
     return new Promise((resolve, reject) => {
-      this.logger.log(Level.debug, 'download s3 object', params);
+      this.logger.log(Level.debug, 'download s3 object', downloadParams);
 
-      const fileFullPath = path.join(config.paths.tempFolder, objectKey);
-      const readStream = this.s3.getObject(params).createReadStream();
+      const readStream = this.s3.getObject(downloadParams).createReadStream();
 
       readStream.on('error', reject);
 
-      this.fsService.writeToFile(fileFullPath, readStream)
+      this.fsService.writeToFile(destinationFile, readStream)
         .then(resolve)
         .catch(reject);
     });
   }
 
-  async upload(key: string, file: FileModel, bucketName?: string): Promise<FileModel> {
-    const Bucket = this.resolveBucketName(bucketName);
+  async upload(
+    params: { objectKey: string, bucketName?: string },
+    file: FileModel,
+  ): Promise<FileModel> {
+    const Bucket = this.resolveBucketName(params.bucketName);
 
     return new Promise((resolve, reject) => {
       const readStream = this.fsService.readFromFile(file);
 
       const uploadParams = <PutObjectRequest>{
         Bucket,
-        Key: key,
+        Key: params.objectKey,
         Body: readStream,
       };
 
@@ -93,6 +87,16 @@ class S3Adapter extends Adapter {
         .then(() => resolve(file))
         .catch(reject);
     });
+  }
+
+  private resolveBucketName(bucketName?:string): string {
+    const bucket = bucketName ?? this.bucketName;
+
+    if (!bucket) {
+      throw new Error(`Invalid bucket name ${bucket}`);
+    }
+
+    return bucket;
   }
 }
 
