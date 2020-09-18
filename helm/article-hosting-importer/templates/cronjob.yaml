@@ -14,43 +14,41 @@ spec:
       template:
         metadata:
           labels:
-            {{- include "article-hosting-importer.selectorLabels" . | nindent 8 }}
             app.kubernetes.io/component: importer
         spec:
           containers:
-            - name: importer
-              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-              imagePullPolicy: IfNotPresent
-              ports:
-                - name: http
-                  containerPort: 32017
-                  protocol: TCP
-              env:
-                - configMapRef:
-                    name: importer-config
-                - name: CONNECTION_STRING
-                  valueFrom:
-                    secretKeyRef:
-                      name: document-db 
-                      key: connection-string
-                - name: DOCDB_USER
-                  valueFrom:
-                    secretKeyRef:
-                      name: document-db
-                      key: username
-                - name: DOCDB_PASS
-                  valueFrom:
-                    secretKeyRef:
-                      name: document-db
-                      key: password
-                - name: AWS_ACCESS_KEY_ID
-                  valueFrom:
-                    secretKeyRef:
-                      name: importer-secrets
-                      key: accesskey
-                - name: AWS_SECRET_ACCESS_KEY
-                  valueFrom:
-                    secretKeyRef:
-                      name: importer-secrets
-                      key: secretkey
-              restartPolicy: Never
+          - name: importer
+            image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+            imagePullPolicy: IfNotPresent
+            ports:
+              - name: http
+                containerPort: 32017
+                protocol: TCP
+            env:
+              - configMapRef:
+                  name: importer-config
+              - name: CONNECTION_STRING
+                valueFrom:
+                  secretKeyRef:
+                    name: document-db 
+                    key: connection-string
+              - name: DOCDB_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: document-db
+                    key: username
+              - name: DOCDB_PASS
+                valueFrom:
+                  secretKeyRef:
+                    name: document-db
+                    key: password
+              - name: AWS_ACCESS_KEY_ID
+                valueFrom:
+                  secretKeyRef:
+                    name: importer-secrets
+                    key: accesskey
+              - name: AWS_SECRET_ACCESS_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: importer-secrets
+                    key: secretkey
