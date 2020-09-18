@@ -28,8 +28,6 @@ spec:
               - configMapRef:
                   name: importer-config
             env:
-              - name: NODE_ENV
-                value: production
               - name: CONNECTION_STRING
                 valueFrom:
                   secretKeyRef:
