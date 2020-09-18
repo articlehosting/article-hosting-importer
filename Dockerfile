@@ -15,8 +15,8 @@ RUN npm run build
 
 FROM node:14-alpine as executor
 WORKDIR /app
-COPY --from=base /app/build /app/
 COPY --from=base /app/package.json /app/package.json
+COPY --from=base /app/build /app/build
 EXPOSE 32017
 RUN wget https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem;\
 chmod 400 rds-combined-ca-bundle.pem;
