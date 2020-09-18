@@ -6,7 +6,7 @@ metadata:
     {{- include "article-hosting-importer.labels" . | nindent 4 }}
     app.kubernetes.io/component: importer
 spec:
-  schedule: "*/1 * * * *"
+  schedule: "*/5 * * * *"
   concurrencyPolicy: Allow
   jobTemplate:
     spec:
@@ -28,6 +28,8 @@ spec:
               - configMapRef:
                   name: importer-config
             env:
+              - name: NODE_ENV
+                value: production
               - name: CONNECTION_STRING
                 valueFrom:
                   secretKeyRef:
