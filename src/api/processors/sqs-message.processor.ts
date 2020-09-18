@@ -1,5 +1,4 @@
 import path from 'path';
-import { Message } from 'aws-sdk/clients/sqs';
 import Processor from '../abstract/processor';
 import DatabaseAdapter from '../adapters/db.adapter';
 import S3Adapter from '../adapters/s3.adapter';
@@ -7,14 +6,13 @@ import config from '../config';
 import { XML_EXT, ZIP_EXT } from '../constants';
 import ArticleModel, { Article } from '../models/article.model';
 import FileModel from '../models/file.model';
-import S3EventModel, { S3Event } from '../models/s3-event.model';
-import SQSMessageModel from '../models/sqs-message.model';
+import S3EventModel from '../models/s3-event.model';
 import CleanerService from '../service/cleaner.service';
 import DecodeService from '../service/decode.service';
 import ExtractService from '../service/extract.service';
 import FileSystemService from '../service/fs.service';
 import ImportService from '../service/import.service';
-import LoggerService, { Level } from '../service/logger.service';
+import LoggerService from '../service/logger.service';
 import SQSService from '../service/sqs.service';
 import StencilaService from '../service/stencila.service';
 
@@ -25,7 +23,7 @@ interface ArticleObjectKeyDetails {
   file: string,
 }
 
-class SQSMessageProcessor extends Processor {
+class SQSEventProcessor extends Processor {
   private readonly sqsService: SQSService;
 
   private readonly dbAdapter: DatabaseAdapter;
@@ -44,7 +42,7 @@ class SQSMessageProcessor extends Processor {
 
   private readonly importS3Adapter: S3Adapter;
 
-  private Message?: SQSMessageModel<S3Event>;
+  private Event?: S3EventModel;
 
   constructor(logger: LoggerService, sqsService: SQSService, dbAdapter: DatabaseAdapter) {
     super(logger);
@@ -64,22 +62,18 @@ class SQSMessageProcessor extends Processor {
     });
   }
 
-  withMessage(message: SQSMessageModel<S3Event>): SQSMessageProcessor {
-    this.Message = message;
+  withEvent(event: S3EventModel): SQSEventProcessor {
+    this.Event = event;
 
     return this;
   }
 
-  public async processMessage(): Promise<void> {
-    if (!this.Message) {
-      throw new Error('Empty message context');
+  public async processEvent(): Promise<void> {
+    if (!this.Event) {
+      throw new Error('Invalid S3 event model');
     }
 
-    this.logger.log<Message>(Level.debug, 'message', this.Message.message);
-
-    await this.sqsService.removeMessage(this.Message);
-    const context = this.sqsService.decodeContent(this.Message);
-    const files = await this.processSourceFile(context);
+    const files = await this.processSourceFile(this.Event);
 
     const jsonFile = await this.stencilaService.convert(this.fetchFileByExtension(files, XML_EXT));
 
@@ -95,7 +89,7 @@ class SQSMessageProcessor extends Processor {
   }
 
   private async processSourceFile({ objectKey, bucketName }: S3EventModel): Promise<Array<FileModel>> {
-    const { filename, file } = SQSMessageProcessor.parseObjectKey(objectKey);
+    const { filename, file } = SQSEventProcessor.parseObjectKey(objectKey);
 
     const zipFile = await this.importS3Adapter.download(
       { objectKey, bucketName },
@@ -141,4 +135,4 @@ class SQSMessageProcessor extends Processor {
   }
 }
 
-export default SQSMessageProcessor;
+export default SQSEventProcessor;

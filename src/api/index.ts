@@ -2,7 +2,9 @@ import Logable from './abstract/logable';
 import DatabaseAdapter from './adapters/db.adapter';
 import SQSAdapter from './adapters/sqs.adapter';
 import config from './config';
-import SQSMessageProcessor from './processors/sqs-message.processor';
+import { S3Event } from './models/s3-event.model';
+import SQSMessageModel from './models/sqs-message.model';
+import SQSEventProcessor from './processors/sqs-message.processor';
 import LoggerService, { Level } from './service/logger.service';
 import SQSService from './service/sqs.service';
 
@@ -53,10 +55,8 @@ class ApiArticleHostingImporter extends Logable {
 
     for (const message of messages) {
       asyncQueue.push(
-        (new SQSMessageProcessor(this.logger, this.sqsService, this.dbAdapter))
-          .withMessage(message)
-          .processMessage()
-          .catch((err) => {
+        this.processMessage(message)
+          .catch(async (err) => {
             this.logger.log<Error>(Level.error, err.message, err);
           }),
       );
@@ -71,6 +71,14 @@ class ApiArticleHostingImporter extends Logable {
     );
 
     await this.process();
+  }
+
+  private async processMessage(message: SQSMessageModel<S3Event>): Promise<void> {
+    const event = await this.sqsService.parseMessageEvent(message);
+
+    return new SQSEventProcessor(this.logger, this.sqsService, this.dbAdapter)
+      .withEvent(event)
+      .processEvent();
   }
 }
 

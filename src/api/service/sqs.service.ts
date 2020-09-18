@@ -1,3 +1,4 @@
+import { Message } from 'aws-sdk/clients/sqs';
 import LoggerService, { Level } from './logger.service';
 import Service from '../abstract/service';
 import SQSAdapter from '../adapters/sqs.adapter';
@@ -18,13 +19,21 @@ class SQSService extends Service {
     return messages.map((message) => new SQSMessageModel<S3Event>(this.logger, message));
   }
 
-  public async removeMessage(message: SQSMessageModel<S3Event>): Promise<void> {
+  public async parseMessageEvent(message: SQSMessageModel<S3Event>): Promise<S3EventModel> {
+    this.logger.log<Message>(Level.debug, 'message', message.message);
+
+    await this.removeMessage(message);
+
+    return this.decodeContent(message);
+  }
+
+  private async removeMessage(message: SQSMessageModel<S3Event>): Promise<void> {
     await this.sqsAdapter.removeMessage(message.message);
 
     this.logger.log(Level.info, `Message ${message.messageId} was removed from queue.`);
   }
 
-  public decodeContent(message: SQSMessageModel<S3Event>): S3EventModel {
+  private decodeContent(message: SQSMessageModel<S3Event>): S3EventModel {
     // todo: implement check message.body
     return new S3EventModel(this.logger, message.body);
   }
