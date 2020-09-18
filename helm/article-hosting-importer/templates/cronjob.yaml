@@ -24,9 +24,10 @@ spec:
               - name: http
                 containerPort: 32017
                 protocol: TCP
-            env:
+            envFrom:
               - configMapRef:
-                name: importer-config
+                  name: importer-config
+            env:
               - name: CONNECTION_STRING
                 valueFrom:
                   secretKeyRef:
