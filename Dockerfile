@@ -24,5 +24,7 @@ COPY --from=base /app/build /app/build
 COPY --from=base /app/node_modules /app/node_modules
 EXPOSE 32017
 RUN wget https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem;\
-chmod 400 rds-combined-ca-bundle.pem;
+chmod 400 rds-combined-ca-bundle.pem;\
+mkdir -p /app/tmp;\
+mkdir -p /app/data;
 CMD ["npm", "run", "start"]
