@@ -37,7 +37,7 @@ jobs:
         run: |
           aws --region=us-east-1 eks update-kubeconfig --name hive-eks--curie
           helm upgrade --debug -i article-hosting-importer--prod \
-            --set images.tag=${IMAGE_TAG} \
+            --set image.tag=${IMAGE_TAG} \
             --set config.region=us-east-1 \
             --set config.accesskey=${{ secrets.AWS_ACCESS_KEY_ID }} \
             --set config.secretkey=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
