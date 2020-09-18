@@ -25,12 +25,10 @@ spec:
                 containerPort: 32017
                 protocol: TCP
             env:
-              - configMapRef:
-                  name: importer-config
               - name: CONNECTION_STRING
                 valueFrom:
                   secretKeyRef:
-                    name: document-db 
+                    name: document-db
                     key: connection-string
               - name: DOCDB_USER
                 valueFrom:
