@@ -20,6 +20,7 @@ spec:
           containers:
             - name: importer
               image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: IfNotPresent
               ports:
                 - name: http
                   containerPort: 32017
