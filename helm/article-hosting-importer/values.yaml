@@ -1,5 +1,5 @@
-schedule: <>
-parallelism: 2
+schedule: "*/5 * * * *"
+parallelism: <>
 
 image:
   repository: liberoadmin/article-hosting-importer
@@ -14,3 +14,5 @@ config:
 app:
   sqs_name: <>
   sqs_url: <>
+  storage_bucket: <>
+  archive_bucket: <>

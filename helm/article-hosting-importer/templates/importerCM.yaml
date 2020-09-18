@@ -4,6 +4,9 @@ metadata:
   name: importer-config
 data:
     AWS_REGION: {{ .Values.config.region }}
+    AWS_ACCESS_KEY_ID: {{ .Values.config.accesskey }}
+    AWS_SECRET_ACCESS_KEY: {{ .Values.config.secretkey }}
     SQS_QUEUE_NAME: {{ .Values.app.sqs_name }}
     SQS_QUEUE_URL: {{ .Values.app.sqs_url }}
-    
+    S3_STORAGE_BUCKET_NAME: {{ .Values.app.storage_bucket }}
+    S3_ARCHIVE_BUCKET_NAME: {{ .Values.app.archive_bucket }}

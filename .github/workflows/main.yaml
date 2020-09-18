@@ -21,9 +21,9 @@ jobs:
       - name: Lint
         run: |
           make lint
-      - name: Test
-        run: |
-          make test
+      #- name: Test
+      #  run: |
+      #    make test
 
       - name: Push Docker image
         run: |
@@ -39,11 +39,14 @@ jobs:
           aws --region=us-east-1 eks update-kubeconfig --name hive-eks--curie
           helm upgrade -i article-hosting-importer--prod \
             --set images.tag=${IMAGE_TAG} \
+            --set parallelism=2 \
             --set config.region=us-east-1 \
             --set config.accesskey=${{ secrets.AWS_ACCESS_KEY_ID }} \
             --set config.secretkey=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             --set app.sqs_name=${{ secrets.SQS_NAME }} \
             --set app.sqs_url=${{ secrets.SQS_URL }} \
+            --set app.storage_bucket=${{ secrets.STORAGE_BUCKET }} \
+            --set app.archive_bucket=${{ secrets.ARCHIVE_BUCKET }} \
             --wait \
             helm/article-hosting-importer
         env:
