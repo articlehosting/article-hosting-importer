@@ -8,9 +8,9 @@ metadata:
 spec:
   schedule: "*/5 * * * *"
   concurrencyPolicy: Allow
-  parallelism: 2
   jobTemplate:
     spec:
+      parallelism: 2
       template:
         metadata:
           labels:
@@ -25,6 +25,8 @@ spec:
                 containerPort: 32017
                 protocol: TCP
             env:
+              - configMapRef:
+                name: importer-config
               - name: CONNECTION_STRING
                 valueFrom:
                   secretKeyRef:
