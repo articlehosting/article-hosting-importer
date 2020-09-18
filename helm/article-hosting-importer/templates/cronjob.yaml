@@ -16,6 +16,7 @@ spec:
           labels:
             app.kubernetes.io/component: importer
         spec:
+          restartPolicy: OnFailure
           containers:
           - name: importer
             image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
