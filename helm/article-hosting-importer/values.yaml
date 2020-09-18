@@ -1,9 +1,5 @@
-schedule: "*/5 * * * *"
-parallelism: <>
-
 image:
   repository: liberoadmin/article-hosting-importer
-  pullPolicy: IfNotPresent
   tag: <>
 
 config:
