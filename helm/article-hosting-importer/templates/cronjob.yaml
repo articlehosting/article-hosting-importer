@@ -6,9 +6,9 @@ metadata:
     {{- include "article-hosting-importer.labels" . | nindent 4 }}
     app.kubernetes.io/component: importer
 spec:
-  schedule: {{ .Values.schedule }}
+  schedule: "*/5 * * * *"
   concurrencyPolicy: Allow
-  parallelism: {{ .Values.parallelism }}
+  parallelism: 2
   jobTemplate:
     spec:
       template:
