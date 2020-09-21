@@ -119,18 +119,25 @@ dist
 
 # Data folder
 !data/
-data/*
 
-#data/hive-article-hosting-import--curie/*
-#!data/hive-article-hosting-import--curie/ijm
-#!data/hive-article-hosting-import--curie/biorhive
-#
-#data/hive-article-hosting-import--curie/ijm/*
-#!data/hive-article-hosting-import--curie/ijm/ijm-00202.zip
-#
-#data/hive-article-hosting-import--curie/biorhive/*
-#!data/hive-article-hosting-import--curie/biorhive/*.zip
+data/*
+!data/hive-article-hosting-import--curie/
+!data/hive-article-hosting-storage--curie/
+!data/hive-article-hosting-archive--curie/
+
+data/hive-article-hosting-import--curie/*
+!data/hive-article-hosting-import--curie/ijm/
+
+data/hive-article-hosting-storage--curie/*
+!data/hive-article-hosting-storage--curie/articles/
+
+data/hive-article-hosting-import--curie/ijm/*
+!data/hive-article-hosting-import--curie/ijm/ijm-00202.zip
+
+data/hive-article-hosting-archive--curie/*
+!data/hive-article-hosting-archive--curie/.gitkeep
+
+data/hive-article-hosting-storage--curie/articles/*
+!data/hive-article-hosting-storage--curie/articles/.gitkeep
 
 !data/.gitkeep
-!data/hive-article-hosting-import--curie/ijm/ijm-00202.zip
-!data/hive-article-hosting-import--curie/biorhive-articles/*.zip
