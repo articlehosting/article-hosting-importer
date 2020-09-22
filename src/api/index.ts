@@ -2,9 +2,10 @@ import Logable from './abstract/logable';
 import DatabaseAdapter from './adapters/db.adapter';
 import SQSAdapter from './adapters/sqs.adapter';
 import config from './config';
-import { S3Event } from './models/s3-event.model';
+import S3EventModel, { S3Event } from './models/s3-event.model';
 import SQSMessageModel from './models/sqs-message.model';
 import SQSEventProcessor from './processors/sqs-message.processor';
+import CleanerService from './service/cleaner.service';
 import LoggerService, { Level } from './service/logger.service';
 import SQSService from './service/sqs.service';
 
@@ -16,6 +17,8 @@ class ApiArticleHostingImporter extends Logable {
   private readonly dbAdapter: DatabaseAdapter;
 
   private readonly sqsService: SQSService;
+
+  private readonly cleanerService: CleanerService;
 
   constructor(logger: LoggerService) {
     super(logger);
@@ -31,6 +34,8 @@ class ApiArticleHostingImporter extends Logable {
     this.dbAdapter = new DatabaseAdapter(this.logger);
 
     this.sqsService = new SQSService(this.logger, this.sqsAdapter);
+
+    this.cleanerService = new CleanerService(this.logger);
   }
 
   async process(): Promise<void> {
@@ -45,38 +50,52 @@ class ApiArticleHostingImporter extends Logable {
 
     const messagesIds = messages.map((message) => message.messageId);
 
-    this.logger.log<Array<string>>(
-      Level.info,
-      `process messages in parallel. number of concurrent articles is '${config.aws.sqs.defaultParams.MaxNumberOfMessages}'`,
-      messagesIds,
-    );
+    this.logger.log<Array<string>>(Level.info, `parallel messages: '${config.aws.sqs.defaultParams.MaxNumberOfMessages}'`, messagesIds);
 
     const asyncQueue = [];
+    const removeMessagesQueue = [];
 
     for (const message of messages) {
-      asyncQueue.push(
-        this.processMessage(message)
+      const event = this.sqsService.parseMessageEvent(message);
+
+      removeMessagesQueue.push(
+        this.sqsService.removeMessage(message)
           .catch(async (err) => {
             this.logger.log<Error>(Level.error, err.message, err);
           }),
       );
+
+      asyncQueue.push(
+        new Promise((resolve) => {
+          void this.processEvent(message, event)
+            .then(resolve)
+            .catch((err) => {
+              this.logger.log<Error>(Level.error, err.message, err);
+
+              resolve();
+            });
+        })
+          .then(async () => {
+            await this.cleanerService.clean(message, event);
+          })
+          .catch((err) => {
+            // critical error.
+            this.logger.log<Error>(Level.error, `Unable to clear stuff ${message.messageId}. ${err.message}`, err);
+          }),
+      );
     }
 
+    await Promise.all(removeMessagesQueue);
     await Promise.all(asyncQueue);
 
-    this.logger.log<Array<string>>(
-      Level.info,
-      'set of messages processed!',
-      messagesIds,
-    );
+    this.logger.log<Array<string>>(Level.info, 'set of messages processed!', messagesIds);
 
     await this.process();
   }
 
-  private async processMessage(message: SQSMessageModel<S3Event>): Promise<void> {
-    const event = await this.sqsService.parseMessageEvent(message);
-
+  private async processEvent(message: SQSMessageModel<S3Event>, event: S3EventModel): Promise<void> {
     return new SQSEventProcessor(this.logger, this.sqsService, this.dbAdapter)
+      .withMessage(message)
       .withEvent(event)
       .processEvent();
   }

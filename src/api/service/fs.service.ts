@@ -18,11 +18,18 @@ class FileSystemService extends Service {
 
   private async checkAccess(fileFullPath: string): Promise<boolean> {
     return new Promise((resolve) => {
-      fs.access(fileFullPath, fs.constants.W_OK, (err) => resolve(!err));
+      fs.access(fileFullPath, fs.constants.F_OK, (err) => resolve(!err));
     });
   }
 
   public async createFolder(folderPath: string): Promise<string> {
+    // @todo: also check for permissions, not only if dir exists.
+    const haveAccessAndExists = await this.checkAccess(folderPath);
+
+    if (haveAccessAndExists) {
+      return Promise.resolve(folderPath);
+    }
+
     return new Promise((resolve, reject) => {
       fs.mkdir(folderPath, { recursive: true }, (err, data) => {
         if (err) {
@@ -35,14 +42,17 @@ class FileSystemService extends Service {
   }
 
   public async writeToFile(fileFullPath: string, readStream: Readable): Promise<FileModel> {
-    if (!await this.checkAccess(fileFullPath)) {
-      await this.createFolder(path.join(...this.decoupleFile(fileFullPath)));
-    }
+    await this.createFolder(path.join(...this.decoupleFile(fileFullPath)));
 
     return new Promise((resolve, reject) => {
       const writeStream = fs.createWriteStream(fileFullPath, config.fs.writeStreamOptions);
 
       writeStream.on('error', reject);
+
+      // @todo: fix that ... file still not accessible.
+      readStream.on('error', (err) => {
+        writeStream.emit('error', err);
+      });
 
       writeStream.on('close', () => {
         const file = new FileModel(this.logger, {
@@ -106,6 +116,16 @@ class FileSystemService extends Service {
     return new Promise((resolve, reject) => {
       rimraf(folderPath, (error) => (error ? reject(error) : resolve()));
     });
+  }
+
+  public async getFile(fullPath: string): Promise<FileModel> {
+    const haveAccessAndExists = await this.checkAccess(fullPath);
+
+    if (!haveAccessAndExists) {
+      throw new Error(`Invalid path ${fullPath}. No permissions to file or file might not exists!`);
+    }
+
+    return new FileModel(this.logger, { fullPath });
   }
 }
 
