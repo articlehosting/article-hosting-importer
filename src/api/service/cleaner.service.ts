@@ -35,6 +35,7 @@ class CleanerService extends Service {
     // @todo: [TBC] should archive file here, or this should be a part of import.
     // @todo: identify if message was processed well/fail. In `fail` case should move to fail bucket.
     // @todo: do not archive anything if source is invalid?
+    // @todo: check source file if is not valid.
     await this.archiveFile(zipFile);
 
     const workingFolder = this.utilService.workingFolder(message.messageId);
