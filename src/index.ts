@@ -2,12 +2,11 @@ import ApiArticleHostingImporter from './api';
 import LoggerService, { Level } from './api/service/logger.service';
 
 void (async (): Promise<void> => {
-  console.log(process.env.NODE_ENV, 'env');
-
   let code = 0;
   const logger = new LoggerService();
 
   try {
+    logger.log(Level.warn, `Service starts in ${process.env.NODE_ENV} mode.`);
     const api = new ApiArticleHostingImporter(logger);
 
     await api.process();
