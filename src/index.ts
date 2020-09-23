@@ -1,9 +1,8 @@
 import ApiArticleHostingImporter from './api';
-import config from './api/config';
 import LoggerService, { Level } from './api/service/logger.service';
 
 void (async (): Promise<void> => {
-  console.log(JSON.stringify(config, undefined, 2), 'config');
+  console.log(process.env.NODE_ENV, 'env');
 
   let code = 0;
   const logger = new LoggerService();
