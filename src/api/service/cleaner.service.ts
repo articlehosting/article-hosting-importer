@@ -13,6 +13,8 @@ const { endpoint } = config.aws.s3;
 class CleanerService extends Service {
   private readonly archiveS3Adapter: S3Adapter;
 
+  private readonly importS3Adapter: S3Adapter;
+
   private readonly fsService: FileSystemService;
 
   private readonly utilService: UtilService;
@@ -22,6 +24,9 @@ class CleanerService extends Service {
     this.archiveS3Adapter = new S3Adapter(this.logger, {
       endpoint,
       bucketName: config.aws.s3.archiveStorage.bucketName,
+    });
+    this.importS3Adapter = new S3Adapter(this.logger, {
+      endpoint,
     });
     this.fsService = new FileSystemService(this.logger);
     this.utilService = new UtilService(this.logger);
@@ -35,8 +40,18 @@ class CleanerService extends Service {
     // @todo: [TBC] should archive file here, or this should be a part of import.
     // @todo: identify if message was processed well/fail. In `fail` case should move to fail bucket.
     // @todo: do not archive anything if source is invalid?
-    // @todo: check source file if is not valid.
     await this.archiveFile(zipFile);
+
+    // @todo: remove this in final release
+    if (process.env.NODE_ENV === 'production') {
+      this.logger.log(Level.info, `remove source file ${event.objectKey}`);
+      await this.importS3Adapter.remove({
+        objectKey: event.objectKey,
+        bucketName: event.bucketName,
+      });
+    } else {
+      this.logger.log(Level.warn, `escaping removal of source file ${event.objectKey} in non production mode`);
+    }
 
     const workingFolder = this.utilService.workingFolder(message.messageId);
 

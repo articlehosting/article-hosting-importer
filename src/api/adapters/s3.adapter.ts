@@ -1,4 +1,4 @@
-import S3, { ClientConfiguration, PutObjectRequest } from 'aws-sdk/clients/s3';
+import S3, { ClientConfiguration, DeleteObjectRequest, PutObjectRequest } from 'aws-sdk/clients/s3';
 import Adapter from '../abstract/adapter';
 import config from '../config';
 import FileModel from '../models/file.model';
@@ -85,6 +85,22 @@ class S3Adapter extends Adapter {
       this.s3.upload(uploadParams)
         .promise()
         .then(() => resolve(file))
+        .catch(reject);
+    });
+  }
+
+  async remove(params: { objectKey: string, bucketName?: string }): Promise<void> {
+    const Bucket = this.resolveBucketName(params.bucketName);
+
+    return new Promise((resolve, reject) => {
+      const removeParams = <DeleteObjectRequest>{
+        Bucket,
+        Key: params.objectKey,
+      };
+
+      this.s3.deleteObject(removeParams)
+        .promise()
+        .then(() => resolve())
         .catch(reject);
     });
   }
