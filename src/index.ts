@@ -2,6 +2,8 @@ import ApiArticleHostingImporter from './api';
 import LoggerService, { Level } from './api/service/logger.service';
 
 void (async (): Promise<void> => {
+  console.log(process.env.NODE_ENV, 'environment');
+
   let code = 0;
   const logger = new LoggerService();
 
