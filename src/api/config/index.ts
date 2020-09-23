@@ -25,7 +25,7 @@ const sslOptions = process.env.NODE_ENV === 'production' ? {
 
 const config = {
   logger: {
-    level: process.env.NODE_ENV !== 'production' ? 'debug' : 'info',
+    level: process.env.LOGGING_DEBUG ? 'debug' : 'info',
   },
   aws: {
     secrets: {

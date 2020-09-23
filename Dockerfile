@@ -1,30 +1,65 @@
-FROM node:14-alpine as base
+FROM node:14.5.0-alpine3.12 AS node
+
 WORKDIR /app
-COPY package.json package-lock.json /app/
+
+#
+# Stage: Production NPM install
+#
+FROM node AS npm-prod
+
+COPY package.json \
+  package-lock.json \
+  ./
+
+RUN npm install --production
+
+#
+# Stage 1: Dev dependency NPM install
+#
+FROM npm-prod AS npm-dev
+
 RUN npm install
-COPY src/ /app/src/
-COPY test/ /app/test/
+
+#
+# Stage: Development environment
+#
+FROM node AS dev
+ENV NODE_ENV=development
+ENV LOGGING_DEBUG=true
+
 COPY .eslintignore \
   .eslintrc.js \
   jest.config.js \
   tsconfig.json \
   tsconfig.dev.json \
-  /app/
+  ./
+COPY --from=npm-dev /app/ .
+COPY test/ test/
+COPY src/ src/
+
+CMD ["npm", "run", "start:dev"]
+
+#
+# Stage: Production build
+#
+FROM dev AS build-prod
+ENV NODE_ENV=production
+
 RUN npm run build
 
-FROM node:14-alpine as nodemods
-WORKDIR /app
-COPY package.json package-lock.json /app/
-RUN npm install --production
+#
+# Stage: Production environment
+#
+FROM node AS prod
+ENV NODE_ENV=production
 
-FROM node:14-alpine as executor
-WORKDIR /app
-COPY --from=base /app/package.json /app/package.json
-COPY --from=base /app/build /app/build
-COPY --from=base /app/node_modules /app/node_modules
+COPY --from=npm-prod /app/ .
+COPY --from=build-prod /app/build/ build/
+
 EXPOSE 32017
+
+# Download AWS RDS Root CAs
 RUN wget https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem;\
-chmod 400 rds-combined-ca-bundle.pem;\
-mkdir -p /app/tmp;\
-mkdir -p /app/data;
+chmod 400 rds-combined-ca-bundle.pem;
+
 CMD ["npm", "run", "start"]
