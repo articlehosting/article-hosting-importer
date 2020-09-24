@@ -1,9 +1,12 @@
 import ApiArticleHostingImporter from './api';
+import config from './api/config';
 import LoggerService, { Level } from './api/service/logger.service';
 
 void (async (): Promise<void> => {
   let code = 0;
   const logger = new LoggerService();
+
+  console.log(JSON.stringify(config.paths, undefined, 2));
 
   try {
     logger.log(Level.warn, `Service starts in ${process.env.NODE_ENV} mode.`);
@@ -15,9 +18,6 @@ void (async (): Promise<void> => {
 
     code = 1;
   }
-
-  // wait 4 mins before exit
-  await new Promise((resolve) => setTimeout(resolve, (4 * 60) * 1000));
 
   process.exit(code);
 })();
