@@ -11,7 +11,7 @@ import DecodeService from '../service/decode.service';
 import ExtractService from '../service/extract.service';
 import FileSystemService from '../service/fs.service';
 import ImportService from '../service/import.service';
-import LoggerService from '../service/logger.service';
+import LoggerService, { Level } from '../service/logger.service';
 import SQSService from '../service/sqs.service';
 import StencilaService from '../service/stencila.service';
 import UtilService from '../service/util.service';
@@ -95,15 +95,17 @@ class SQSEventProcessor extends Processor {
       throw new Error('Invalid context message');
     }
 
-    const zipFile = await this.importS3Adapter.download(
-      { objectKey, bucketName },
-      this.utilService.sourceFilePath(this.Message.messageId, objectKey),
-    );
+    const sourceFileDestination = this.utilService.sourceFilePath(this.Message.messageId, objectKey);
 
-    const extracted = await this.extractService.extractFiles(
-      zipFile,
-      this.utilService.workingFolder(this.Message.messageId),
-    );
+    this.logger.log(Level.info, `article source file destination ${sourceFileDestination}`);
+
+    const zipFile = await this.importS3Adapter.download({ objectKey, bucketName }, sourceFileDestination);
+
+    const extractDest = this.utilService.workingFolder(this.Message.messageId);
+
+    this.logger.log(Level.info, `extract zip source file from ${zipFile.fullPath} to ${extractDest}`);
+
+    const extracted = await this.extractService.extractFiles(zipFile, extractDest);
 
     if (!extracted || !extracted.length) {
       throw new Error('Unable to extract zip content');

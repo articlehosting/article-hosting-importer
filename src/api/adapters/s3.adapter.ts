@@ -55,7 +55,7 @@ class S3Adapter extends Adapter {
     };
 
     return new Promise((resolve, reject) => {
-      this.logger.log(Level.debug, 'download s3 object', downloadParams);
+      this.logger.log(Level.debug, 'download s3 object', { downloadParams, destinationFile });
 
       const readStream = this.s3.getObject(downloadParams).createReadStream();
 
