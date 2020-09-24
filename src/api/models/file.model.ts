@@ -3,47 +3,57 @@ import Model from '../abstract/model';
 import LoggerService from '../service/logger.service';
 
 export interface FileData {
-  fullPath: string,
+  filePath: string,
 }
 
 class FileModel extends Model {
-  private readonly FullPath: string;
+  private readonly FilePath: string;
+
+  private readonly Dirname: string;
+
+  private readonly FolderName: string;
+
+  private readonly Basename: string;
 
   private readonly Name: string;
 
-  private readonly Filename: string;
-
   private readonly Extension: string;
-
-  private readonly FolderPath: string;
 
   constructor(logger: LoggerService, data: FileData) {
     super(logger);
 
-    this.FullPath = data.fullPath;
+    this.FilePath = data.filePath;
 
-    const segments = this.FullPath.split(/[/\\]/g);
+    this.Dirname = path.dirname(this.FilePath);
 
-    if (!segments ?? segments.length) {
-      throw new Error(`Invalid file path ${this.FullPath}`);
-    }
+    this.FolderName = path.basename(this.Dirname);
 
-    const filename = segments[segments.length - 1];
+    this.Basename = path.basename(this.FilePath);
 
-    segments.pop();
-
-    this.FolderPath = path.join(...segments);
-
-    this.Filename = filename;
-
-    const [name, extension] = filename.split('.');
+    const [name, extension] = this.Basename.split('.');
 
     if (!name || !extension) {
-      throw new Error(`Unable to parse file path ${filename}`);
+      throw new Error(`Unable to parse basename ${this.Basename}`);
     }
 
     this.Name = name;
     this.Extension = extension;
+  }
+
+  get filePath(): string {
+    return this.FilePath;
+  }
+
+  get dirname(): string {
+    return this.Dirname;
+  }
+
+  get folderName(): string {
+    return this.FolderName;
+  }
+
+  get basename(): string {
+    return this.Basename;
   }
 
   get name(): string {
@@ -52,19 +62,6 @@ class FileModel extends Model {
 
   get extension(): string {
     return this.Extension;
-  }
-
-  get fullPath(): string {
-    return this.FullPath;
-  }
-
-  get filename(): string {
-    // name + ext.
-    return this.Filename;
-  }
-
-  get folderPath(): string {
-    return this.FolderPath;
   }
 }
 

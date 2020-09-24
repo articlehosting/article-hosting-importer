@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Readable } from 'stream';
+import extractzip from 'extract-zip';
 import rimraf from 'rimraf';
 import { Level } from './logger.service';
 import Service from '../abstract/service';
@@ -8,31 +9,34 @@ import config from '../config';
 import FileModel from '../models/file.model';
 
 class FileSystemService extends Service {
-  private decoupleFile(filePath: string): Array<string> {
-    const segments = filePath.split(/[/\\]/g);
+  private readonly cwd = config.paths.tempFolder;
 
-    segments.pop();
-
-    return segments;
+  public resolveWorkingPath(relativePath: string | FileModel): string {
+    return path.join(
+      this.cwd,
+      relativePath instanceof FileModel
+        ? relativePath.filePath
+        : relativePath,
+    );
   }
 
   private async checkAccess(fileFullPath: string): Promise<boolean> {
     return new Promise((resolve) => {
+      // @todo: check error messages ...
       fs.access(fileFullPath, fs.constants.F_OK, (err) => resolve(!err));
     });
   }
 
-  public async createFolder(folderPath: string): Promise<string> {
+  public async createFolders(foldersPath: string): Promise<string> {
     // @todo: also check for permissions, not only if dir exists.
-    this.logger.log(Level.debug, `create folder ${folderPath} recursively.`);
-    const haveAccessAndExists = await this.checkAccess(folderPath);
+    const haveAccessAndExists = await this.checkAccess(foldersPath);
 
     if (haveAccessAndExists) {
-      return Promise.resolve(folderPath);
+      return Promise.resolve(foldersPath);
     }
 
     return new Promise((resolve, reject) => {
-      fs.mkdir(folderPath, { recursive: true }, (err, data) => {
+      fs.mkdir(foldersPath, { recursive: true }, (err, data) => {
         if (err) {
           // ['EACCES', 'EPERM', 'EISDIR', 'ENOENT']
           if (err.code !== 'EEXIST') {
@@ -45,11 +49,13 @@ class FileSystemService extends Service {
     });
   }
 
-  public async writeToFile(fileFullPath: string, readStream: Readable): Promise<FileModel> {
-    await this.createFolder(path.join(...this.decoupleFile(fileFullPath)));
+  public async writeToFile(filePath: string, readStream: Readable): Promise<FileModel> {
+    const absoluteFilePath = this.resolveWorkingPath(filePath);
+
+    await this.createFolders(path.dirname(absoluteFilePath));
 
     return new Promise((resolve, reject) => {
-      const writeStream = fs.createWriteStream(fileFullPath, config.fs.writeStreamOptions);
+      const writeStream = fs.createWriteStream(absoluteFilePath, config.fs.writeStreamOptions);
 
       writeStream.on('error', reject);
 
@@ -60,10 +66,10 @@ class FileSystemService extends Service {
 
       writeStream.on('close', () => {
         const file = new FileModel(this.logger, {
-          fullPath: fileFullPath,
+          filePath,
         });
 
-        this.logger.log(Level.debug, `${file.filename} download complete`);
+        this.logger.log(Level.debug, `${file.basename} download complete`);
 
         resolve(file);
       });
@@ -73,7 +79,7 @@ class FileSystemService extends Service {
   }
 
   public readFromFile(file: FileModel): Readable {
-    const readStream = fs.createReadStream(file.fullPath, config.fs.readStreamOptions);
+    const readStream = fs.createReadStream(this.resolveWorkingPath(file.filePath), config.fs.readStreamOptions);
 
     readStream.on('error', (err) => {
       this.logger.log<Error>(Level.error, err.message, err);
@@ -84,7 +90,7 @@ class FileSystemService extends Service {
 
   public async readFileContents(file: FileModel): Promise<string> {
     return new Promise((resolve, reject) => {
-      fs.readFile(file.fullPath, 'utf-8', (err, content) => {
+      fs.readFile(this.resolveWorkingPath(file.filePath), 'utf-8', (err, content) => {
         if (err) {
           return reject(err);
         }
@@ -96,7 +102,7 @@ class FileSystemService extends Service {
 
   public async getFolderFiles(folderPath: string): Promise<Array<FileModel>> {
     return new Promise((resolve, reject) => {
-      fs.readdir(folderPath, { withFileTypes: true }, (err, dirents: Array<fs.Dirent>) => {
+      fs.readdir(this.resolveWorkingPath(folderPath), { withFileTypes: true }, (err, dirents: Array<fs.Dirent>) => {
         if (err) {
           return reject(err);
         }
@@ -105,9 +111,9 @@ class FileSystemService extends Service {
 
         for (const dirent of dirents) {
           if (dirent.isFile()) {
-            const fullPath = path.normalize(path.join(folderPath, dirent.name));
+            const filePath = path.join(folderPath, dirent.name);
 
-            files.push(new FileModel(this.logger, { fullPath }));
+            files.push(new FileModel(this.logger, { filePath }));
           }
         }
 
@@ -118,18 +124,26 @@ class FileSystemService extends Service {
 
   public async removeFolder(folderPath: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      rimraf(folderPath, (error) => (error ? reject(error) : resolve()));
+      rimraf(this.resolveWorkingPath(folderPath), (error) => (error ? reject(error) : resolve()));
     });
   }
 
-  public async getFile(fullPath: string): Promise<FileModel> {
-    const haveAccessAndExists = await this.checkAccess(fullPath);
+  public async getFile(filePath: string): Promise<FileModel> {
+    const absoluteFilePath = this.resolveWorkingPath(filePath);
+    const haveAccessAndExists = await this.checkAccess(absoluteFilePath);
 
     if (!haveAccessAndExists) {
-      throw new Error(`Invalid path ${fullPath}. No permissions to file or file might not exists!`);
+      throw new Error(`Invalid path ${filePath}. No permissions to file or file might not exists!`);
     }
 
-    return new FileModel(this.logger, { fullPath });
+    return new FileModel(this.logger, { filePath });
+  }
+
+  public async extract(zipfile: FileModel, destination: string): Promise<void> {
+    const absoluteFilePath = this.resolveWorkingPath(zipfile.filePath);
+    const absoluteDestPath = this.resolveWorkingPath(destination);
+
+    return extractzip(absoluteFilePath, { dir: absoluteDestPath });
   }
 }
 

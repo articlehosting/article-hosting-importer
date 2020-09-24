@@ -50,8 +50,9 @@ class ImportService extends Service {
     }, { upsert: true });
   }
 
+  // @todo: bioRxiv article don't be imported, because publisherId is missing.
   private async importFiles(article: ArticleModel): Promise<void> {
-    const publisherId = article.getPublisherID();
+    const publisherId = article.getPublisherId();
 
     if (!publisherId) {
       throw new Error(`Invalid article publisher ID: ${publisherId}`);
@@ -62,7 +63,7 @@ class ImportService extends Service {
     for (const file of article.files) {
       if (!config.importFilesWhiteList.includes(file.extension)) {
         // @todo: Rework below
-        const objectKey = `articles/${publisherId}/${file.filename}`;
+        const objectKey = `articles/${publisherId}/${file.basename}`;
 
         asyncQueue.push(this.storageS3Adapter.upload({ objectKey }, file));
       }

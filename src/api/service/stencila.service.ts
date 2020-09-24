@@ -14,13 +14,14 @@ class StencilaService extends Service {
   }
 
   public async convert(xmlFile: FileModel): Promise<FileModel> {
-    const xmlFilePath = xmlFile.fullPath;
-    const jsonFilePath = xmlFile.fullPath.replace('xml', 'json');
+    const xmlFilePath = xmlFile.filePath;
+    const jsonFilePath = xmlFile.filePath.replace('xml', 'json');
+
     const cmd = [
       'encoda',
       'convert',
-      xmlFilePath,
-      jsonFilePath,
+      this.fsService.resolveWorkingPath(xmlFilePath),
+      this.fsService.resolveWorkingPath(jsonFilePath),
       '--from', 'jats',
     ];
 
@@ -31,7 +32,7 @@ class StencilaService extends Service {
         }
 
         const jsonFile = new FileModel(this.logger, {
-          fullPath: jsonFilePath,
+          filePath: jsonFilePath,
         });
 
         return resolve(jsonFile);

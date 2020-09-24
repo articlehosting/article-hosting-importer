@@ -35,7 +35,7 @@ class CleanerService extends Service {
   public async clean(message: SQSMessageModel<S3Event>, event: S3EventModel): Promise<void> {
     const zipFile = await this.fsService.getFile(this.utilService.sourceFilePath(message.messageId, event.objectKey));
 
-    this.logger.log<Array<string>>(Level.debug, 'archive source file', [zipFile.fullPath]);
+    this.logger.log<Array<string>>(Level.debug, 'archive source file', [zipFile.filePath]);
 
     // @todo: [TBC] should archive file here, or this should be a part of import.
     // @todo: identify if message was processed well/fail. In `fail` case should move to fail bucket.
@@ -53,15 +53,13 @@ class CleanerService extends Service {
       this.logger.log(Level.warn, `escaping removal of source file ${event.objectKey} in non production mode`);
     }
 
-    const workingFolder = this.utilService.workingFolder(message.messageId);
+    this.logger.log<Array<string>>(Level.debug, 'remove message folder', [message.messageId]);
 
-    this.logger.log<Array<string>>(Level.debug, 'remove working folder', [workingFolder]);
-
-    await this.fsService.removeFolder(workingFolder);
+    await this.fsService.removeFolder(message.messageId);
   }
 
   private async archiveFile(file: FileModel): Promise<void> {
-    const objectKey = `${file.name}-${new Date().toISOString()}.${file.extension}`;
+    const objectKey = `${file.name}-${new Date().valueOf()}.${file.extension}`;
 
     await this.archiveS3Adapter.upload({ objectKey }, file);
   }

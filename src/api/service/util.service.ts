@@ -1,29 +1,10 @@
 import path from 'path';
 import Service from '../abstract/service';
-import config from '../config';
 import FileModel from '../models/file.model';
 
-interface ArticleObjectKeyDetails {
-  filename: string,
-  file: string,
-}
-
 class UtilService extends Service {
-  public workingFolder(messageId: string): string {
-    return path.join(config.paths.tempFolder, messageId);
-  }
-
-  public parseObjectKey(objectKey: string): ArticleObjectKeyDetails {
-    const segments = objectKey.split('/');
-
-    const file = segments[segments.length - 1];
-
-    const [filename] = file.split('.');
-
-    return {
-      file,
-      filename,
-    };
+  public sourceFilePath(messageId: string, objectKey: string): string {
+    return path.join(messageId, path.basename(objectKey));
   }
 
   public fetchFileByExtension(files: Array<FileModel>, extension: string): FileModel {
@@ -34,13 +15,6 @@ class UtilService extends Service {
     }
 
     return file;
-  }
-
-  public sourceFilePath(messageId: string, objectKey: string): string {
-    const { filename, file } = this.parseObjectKey(objectKey);
-
-    // @todo: should identify source xml file
-    return path.join(this.workingFolder(messageId), filename, file);
   }
 }
 

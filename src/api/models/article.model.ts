@@ -308,7 +308,7 @@ class ArticleModel extends Model {
     return this.getArticleIdentifier(CONTENT_IDENTIFIER_DOI);
   }
 
-  public getPublisherID(): string | null {
+  public getPublisherId(): string | null {
     return this.getArticleIdentifier(CONTENT_IDENTIFIER_PUBLISHERID);
   }
 
@@ -317,7 +317,7 @@ class ArticleModel extends Model {
       type: `${file.extension.toLocaleUpperCase()}Object`,
       name: file.name,
       extension: file.extension,
-      contentUrl: file.filename,
+      contentUrl: file.basename,
     }));
   }
 }

@@ -95,17 +95,13 @@ class SQSEventProcessor extends Processor {
       throw new Error('Invalid context message');
     }
 
-    const sourceFileDestination = this.utilService.sourceFilePath(this.Message.messageId, objectKey);
+    const srcFileDest = this.utilService.sourceFilePath(this.Message.messageId, objectKey);
 
-    this.logger.log(Level.info, `article source file destination ${sourceFileDestination}`);
+    this.logger.log(Level.info, `article source file destination ${srcFileDest}`);
 
-    const zipFile = await this.importS3Adapter.download({ objectKey, bucketName }, sourceFileDestination);
+    const zipFile = await this.importS3Adapter.download({ objectKey, bucketName }, srcFileDest);
 
-    const extractDest = this.utilService.workingFolder(this.Message.messageId);
-
-    this.logger.log(Level.info, `extract zip source file from ${zipFile.fullPath} to ${extractDest}`);
-
-    const extracted = await this.extractService.extractFiles(zipFile, extractDest);
+    const extracted = await this.extractService.extractFiles(zipFile, this.Message.messageId);
 
     if (!extracted || !extracted.length) {
       throw new Error('Unable to extract zip content');
