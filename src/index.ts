@@ -19,5 +19,8 @@ void (async (): Promise<void> => {
     code = 1;
   }
 
+  // @todo: remove that when solve deploy issue.
+  await new Promise((resolve) => setTimeout(resolve, (2 * 60) * 1000));
+
   process.exit(code);
 })();
