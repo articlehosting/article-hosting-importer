@@ -16,5 +16,8 @@ void (async (): Promise<void> => {
     code = 1;
   }
 
+  // wait 4 mins before exit
+  await new Promise((resolve) => setTimeout(resolve, (4 * 60) * 1000));
+
   process.exit(code);
 })();
