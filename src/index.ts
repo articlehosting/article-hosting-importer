@@ -6,7 +6,7 @@ void (async (): Promise<void> => {
   let code = 0;
   const logger = new LoggerService();
 
-  console.log(JSON.stringify(config.paths, undefined, 2));
+  logger.log(Level.info, JSON.stringify(config.paths, undefined, 2));
 
   try {
     logger.log(Level.warn, `Service starts in ${process.env.NODE_ENV} mode.`);
