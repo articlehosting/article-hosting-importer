@@ -34,7 +34,10 @@ class FileSystemService extends Service {
     return new Promise((resolve, reject) => {
       fs.mkdir(folderPath, { recursive: true }, (err, data) => {
         if (err) {
-          reject(err);
+          // ['EACCES', 'EPERM', 'EISDIR', 'ENOENT']
+          if (err.code !== 'EEXIST') {
+            reject(err);
+          }
         }
 
         resolve(data ?? '');
