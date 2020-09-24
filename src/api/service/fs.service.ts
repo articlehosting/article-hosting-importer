@@ -24,6 +24,7 @@ class FileSystemService extends Service {
 
   public async createFolder(folderPath: string): Promise<string> {
     // @todo: also check for permissions, not only if dir exists.
+    this.logger.log(Level.debug, `create folder ${folderPath} recursively.`);
     const haveAccessAndExists = await this.checkAccess(folderPath);
 
     if (haveAccessAndExists) {
