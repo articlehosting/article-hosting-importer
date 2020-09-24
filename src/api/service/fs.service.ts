@@ -27,7 +27,7 @@ class FileSystemService extends Service {
     });
   }
 
-  public async createFolders(foldersPath: string): Promise<string> {
+  private async createFolders(foldersPath: string): Promise<string> {
     // @todo: also check for permissions, not only if dir exists.
     const haveAccessAndExists = await this.checkAccess(foldersPath);
 
