@@ -1,4 +1,4 @@
-import LoggerService from '../service/logger.service';
+import LoggerService from '../services/logger.service';
 
 abstract class Logable {
   protected logger: LoggerService;

@@ -1,5 +1,5 @@
 import Model from '../abstract/model';
-import LoggerService from '../service/logger.service';
+import LoggerService from '../services/logger.service';
 
 export interface S3Event {
   Records: [{

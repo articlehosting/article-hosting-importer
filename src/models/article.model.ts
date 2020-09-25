@@ -1,6 +1,6 @@
 import FileModel from './file.model';
 import Model from '../abstract/model';
-import LoggerService from '../service/logger.service';
+import LoggerService from '../services/logger.service';
 
 export const CONTENT_IDENTIFIER_PUBLISHERID = 'publisher-id';
 export const CONTENT_IDENTIFIER_DOI = 'doi';

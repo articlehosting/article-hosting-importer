@@ -4,7 +4,7 @@ import SQS, {
 } from 'aws-sdk/clients/sqs';
 import Adapter from '../abstract/adapter';
 import config from '../config';
-import LoggerService, { Level } from '../service/logger.service';
+import LoggerService, { Level } from '../services/logger.service';
 
 export interface SQSAdapterOptions {
   queueName: string;

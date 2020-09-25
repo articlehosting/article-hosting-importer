@@ -1,7 +1,7 @@
 import { Message, MessageAttributeValue } from 'aws-sdk/clients/sqs';
 import Model from '../abstract/model';
-import DecodeService from '../service/decode.service';
-import LoggerService from '../service/logger.service';
+import DecodeService from '../services/decode.service';
+import LoggerService from '../services/logger.service';
 
 class SQSMessageModel<T> extends Model {
   private readonly Message: Message;

@@ -3,9 +3,9 @@ import path from 'path';
 import { CommonEncodeOptions } from '@stencila/encoda/dist/codecs/types';
 import { ReceiveMessageRequest } from 'aws-sdk/clients/sqs';
 import { MongoClientOptions } from 'mongodb';
-import { JSON_EXT, XML_EXT, ZIP_EXT } from '../constants';
+import { JSON_EXT, XML_EXT, ZIP_EXT } from './constants';
 
-const root = path.normalize(path.join(__dirname, '..', '..', '..'));
+const root = path.normalize(path.join(__dirname, '..', '..'));
 
 if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
   // eslint-disable-next-line

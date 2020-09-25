@@ -1,17 +1,17 @@
-import Logable from './abstract/logable';
-import DatabaseAdapter from './adapters/db.adapter';
-import SQSAdapter from './adapters/sqs.adapter';
-import config from './config';
-import S3EventModel, { S3Event } from './models/s3-event.model';
-import SQSMessageModel from './models/sqs-message.model';
-import SQSEventProcessor from './processors/sqs-message.processor';
-import CleanerService from './service/cleaner.service';
-import LoggerService, { Level } from './service/logger.service';
-import SQSService from './service/sqs.service';
+import SQSEventProcessor from './sqs-message.processor';
+import Logable from '../abstract/logable';
+import DatabaseAdapter from '../adapters/db.adapter';
+import SQSAdapter from '../adapters/sqs.adapter';
+import config from '../config';
+import S3EventModel, { S3Event } from '../models/s3-event.model';
+import SQSMessageModel from '../models/sqs-message.model';
+import CleanerService from '../services/cleaner.service';
+import LoggerService, { Level } from '../services/logger.service';
+import SQSService from '../services/sqs.service';
 
 const { endpoint } = config.aws.sqs;
 
-class ApiArticleHostingImporter extends Logable {
+class ArticleImporterProcessor extends Logable {
   private readonly sqsAdapter: SQSAdapter;
 
   private readonly dbAdapter: DatabaseAdapter;
@@ -101,4 +101,4 @@ class ApiArticleHostingImporter extends Logable {
   }
 }
 
-export default ApiArticleHostingImporter;
+export default ArticleImporterProcessor;

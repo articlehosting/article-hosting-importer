@@ -2,8 +2,8 @@ import S3, { ClientConfiguration, DeleteObjectRequest, PutObjectRequest } from '
 import Adapter from '../abstract/adapter';
 import config from '../config';
 import FileModel from '../models/file.model';
-import FileSystemService from '../service/fs.service';
-import LoggerService, { Level } from '../service/logger.service';
+import FileSystemService from '../services/fs.service';
+import LoggerService, { Level } from '../services/logger.service';
 
 interface S3AdapterOptions {
   bucketName?: string;

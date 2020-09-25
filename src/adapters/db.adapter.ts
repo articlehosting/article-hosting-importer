@@ -1,7 +1,7 @@
 import { Collection, Db, MongoClient } from 'mongodb';
 import Adapter from '../abstract/adapter';
 import config from '../config';
-import LoggerService from '../service/logger.service';
+import LoggerService from '../services/logger.service';
 
 // todo: implement logging for all queries..
 class DatabaseAdapter extends Adapter {

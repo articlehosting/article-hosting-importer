@@ -1,6 +1,6 @@
 import path from 'path';
 import Model from '../abstract/model';
-import LoggerService from '../service/logger.service';
+import LoggerService from '../services/logger.service';
 
 export interface FileData {
   filePath: string,

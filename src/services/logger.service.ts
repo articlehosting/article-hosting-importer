@@ -19,7 +19,7 @@ class LoggerService {
     this.winston = winston.createLogger({
       level: config.logger.level ?? 'info',
       format: winston.format.json(),
-      defaultMeta: { service: 'user-service' },
+      defaultMeta: { service: 'user-services' },
       transports: [
         //
         // - Write all logs with level `error` and below to `error.log`

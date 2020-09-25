@@ -1,5 +1,5 @@
-import ApiArticleHostingImporter from './api';
-import LoggerService, { Level } from './api/service/logger.service';
+import ArticleImporterProcessor from './processors/article-importer.processor';
+import LoggerService, { Level } from './services/logger.service';
 
 void (async (): Promise<void> => {
   let code = 0;
@@ -7,7 +7,7 @@ void (async (): Promise<void> => {
 
   try {
     logger.log(Level.warn, `Service starts in ${process.env.NODE_ENV} mode.`);
-    const api = new ApiArticleHostingImporter(logger);
+    const api = new ArticleImporterProcessor(logger);
 
     await api.process();
   } catch (err) {

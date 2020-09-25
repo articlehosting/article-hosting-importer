@@ -2,19 +2,19 @@ import Processor from '../abstract/processor';
 import DatabaseAdapter from '../adapters/db.adapter';
 import S3Adapter from '../adapters/s3.adapter';
 import config from '../config';
-import { XML_EXT } from '../constants';
+import { XML_EXT } from '../config/constants';
 import ArticleModel, { Article } from '../models/article.model';
 import FileModel from '../models/file.model';
 import S3EventModel, { S3Event } from '../models/s3-event.model';
 import SQSMessageModel from '../models/sqs-message.model';
-import DecodeService from '../service/decode.service';
-import ExtractService from '../service/extract.service';
-import FileSystemService from '../service/fs.service';
-import ImportService from '../service/import.service';
-import LoggerService, { Level } from '../service/logger.service';
-import SQSService from '../service/sqs.service';
-import StencilaService from '../service/stencila.service';
-import UtilService from '../service/util.service';
+import DecodeService from '../services/decode.service';
+import ExtractService from '../services/extract.service';
+import FileSystemService from '../services/fs.service';
+import ImportService from '../services/import.service';
+import LoggerService, { Level } from '../services/logger.service';
+import SQSService from '../services/sqs.service';
+import StencilaService from '../services/stencila.service';
+import UtilService from '../services/util.service';
 
 const { endpoint } = config.aws.s3;
 
