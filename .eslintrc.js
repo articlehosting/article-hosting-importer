@@ -76,6 +76,7 @@ module.exports = {
     'class-methods-use-this': 'off',
     'no-await-in-loop': 'off',
     '@typescript-eslint/restrict-template-expressions': 'off',
+    '@typescript-eslint/ban-ts-comment': 'off',
   },
   settings: {
     'import/resolver': {

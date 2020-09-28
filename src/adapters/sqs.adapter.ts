@@ -1,6 +1,6 @@
 import SQS, {
   ClientConfiguration,
-  GetQueueUrlResult, Message, MessageList, ReceiveMessageRequest,
+  Message, MessageList, ReceiveMessageRequest,
 } from 'aws-sdk/clients/sqs';
 import Adapter from '../abstract/adapter';
 import config from '../config';
@@ -14,9 +14,9 @@ export interface SQSAdapterOptions {
 class SQSAdapter extends Adapter {
   private sqs: SQS;
 
-  private name: string;
+  private readonly name: string;
 
-  private endpoint?: string;
+  private readonly endpoint?: string;
 
   private queueUrl?: string;
 
@@ -42,59 +42,42 @@ class SQSAdapter extends Adapter {
       return this.queueUrl;
     }
 
-    const queue = await this.connectToQueue();
-
-    if (!queue.QueueUrl) {
-      throw new Error(`Queue ${this.name} not exists`);
-    }
-
-    return queue.QueueUrl;
+    return this.connectToQueue();
   }
 
-  async connectToQueue(queueName?: string): Promise<GetQueueUrlResult> {
-    try {
-      const QueueName = queueName ?? this.name;
-      const queue = await this.sqs.getQueueUrl({ QueueName }).promise();
+  public async connectToQueue(queueName?: string): Promise<string> {
+    const QueueName = queueName ?? this.name;
 
-      if (!queue || !queue.QueueUrl) {
-        throw new Error(`Queue ${QueueName} not exists`);
-      }
+    const { QueueUrl } = await this.sqs.getQueueUrl({ QueueName }).promise();
 
-      this.queueUrl = queue.QueueUrl;
-
-      this.logger.log<GetQueueUrlResult>(Level.info, 'connected to queue', queue);
-
-      return queue;
-    } catch (err) {
-      throw new Error(err);
+    if (!QueueUrl) {
+      throw new Error(`Queue ${QueueName} not exists`);
     }
+
+    this.queueUrl = QueueUrl;
+
+    this.logger.log<string>(Level.info, 'connected to queue', QueueUrl);
+
+    return QueueUrl;
   }
 
-  async getMessages(params?: ReceiveMessageRequest): Promise<MessageList> {
-    try {
-      const QueueUrl = await this.getQueueUrl();
+  public async getMessages(params?: ReceiveMessageRequest): Promise<MessageList> {
+    const QueueUrl = await this.getQueueUrl();
 
-      const data = await this.sqs.receiveMessage({
-        ...config.aws.sqs.defaultParams,
-        QueueUrl,
-        ...(params ?? {}),
-      }).promise();
+    const data = await this.sqs.receiveMessage({
+      ...config.aws.sqs.defaultParams,
+      QueueUrl,
+      ...(params ?? {}),
+    }).promise();
 
-      return data.Messages ?? [];
-    } catch (err) {
-      throw new Error(err);
-    }
+    return data.Messages ?? [];
   }
 
-  async removeMessage(message: Message): Promise<void> {
-    try {
-      const QueueUrl = await this.getQueueUrl();
+  public async removeMessage(message: Message): Promise<void> {
+    const QueueUrl = await this.getQueueUrl();
 
-      if (message.ReceiptHandle) {
-        await this.sqs.deleteMessage({ QueueUrl, ReceiptHandle: message.ReceiptHandle }).promise();
-      }
-    } catch (err) {
-      throw new Error(err);
+    if (message.ReceiptHandle) {
+      await this.sqs.deleteMessage({ QueueUrl, ReceiptHandle: message.ReceiptHandle }).promise();
     }
   }
 }
