@@ -23,6 +23,7 @@ class ImportService extends Service {
     this.storageS3Adapter = new S3Adapter(this.logger, {
       endpoint,
       bucketName: config.aws.s3.articleStorage.bucketName,
+      prefix: config.aws.s3.articleStorage.prefix,
     });
   }
 
@@ -50,20 +51,18 @@ class ImportService extends Service {
     }, { upsert: true });
   }
 
-  // @todo: bioRxiv article don't be imported, because publisherId is missing.
   private async importFiles(article: ArticleModel): Promise<void> {
-    const publisherId = article.getPublisherId();
+    const doi = article.getDOI();
 
-    if (!publisherId) {
-      throw new Error(`Invalid article publisher ID: ${publisherId}`);
+    if (!doi) {
+      throw new Error(`Invalid article doi: ${doi}`);
     }
 
     const asyncQueue = [];
 
     for (const file of article.files) {
       if (!config.importFilesWhiteList.includes(file.extension)) {
-        // @todo: Rework below
-        const objectKey = `articles/${publisherId}/${file.basename}`;
+        const objectKey = `${doi}/${file.basename}`;
 
         asyncQueue.push(this.storageS3Adapter.upload({ objectKey }, file));
       }

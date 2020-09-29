@@ -308,10 +308,6 @@ class ArticleModel extends Model {
     return this.getArticleIdentifier(CONTENT_IDENTIFIER_DOI);
   }
 
-  public getPublisherId(): string | null {
-    return this.getArticleIdentifier(CONTENT_IDENTIFIER_PUBLISHERID);
-  }
-
   public buildFiles(): Array<ArticleFile> {
     return this.files.map((file) => ({
       type: `${file.extension.toLocaleUpperCase()}Object`,

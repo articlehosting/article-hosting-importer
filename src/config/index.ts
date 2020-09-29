@@ -52,6 +52,7 @@ const config = {
       endpoint: process.env.S3_ENDPOINT,
       articleStorage: {
         bucketName: process.env.S3_STORAGE_BUCKET_NAME,
+        prefix: 'articles/',
       },
       archiveStorage: {
         bucketName: process.env.S3_ARCHIVE_BUCKET_NAME,

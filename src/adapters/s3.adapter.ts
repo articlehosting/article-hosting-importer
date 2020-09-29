@@ -7,7 +7,8 @@ import LoggerService, { Level } from '../services/logger.service';
 
 interface S3AdapterOptions {
   bucketName?: string;
-  endpoint?: string
+  endpoint?: string;
+  prefix?: string;
 }
 
 class S3Adapter extends Adapter {
@@ -19,6 +20,8 @@ class S3Adapter extends Adapter {
 
   private readonly endpoint?: string;
 
+  private readonly prefix?: string;
+
   constructor(logger: LoggerService, options: S3AdapterOptions) {
     super(logger);
 
@@ -28,6 +31,10 @@ class S3Adapter extends Adapter {
 
     if (options.endpoint) {
       this.endpoint = options.endpoint;
+    }
+
+    if (options.prefix) {
+      this.prefix = options.prefix;
     }
 
     const s3Options = <ClientConfiguration>{
@@ -50,7 +57,7 @@ class S3Adapter extends Adapter {
     const Bucket = this.resolveBucketName(params.bucketName);
 
     const downloadParams = {
-      Key: params.objectKey,
+      Key: this.resolveObjectKey(params.objectKey),
       Bucket,
     };
 
@@ -78,7 +85,7 @@ class S3Adapter extends Adapter {
 
       const uploadParams = <PutObjectRequest>{
         Bucket,
-        Key: params.objectKey,
+        Key: this.resolveObjectKey(params.objectKey),
         Body: readStream,
       };
 
@@ -95,7 +102,7 @@ class S3Adapter extends Adapter {
     return new Promise((resolve, reject) => {
       const removeParams = <DeleteObjectRequest>{
         Bucket,
-        Key: params.objectKey,
+        Key: this.resolveObjectKey(params.objectKey),
       };
 
       this.s3.deleteObject(removeParams)
@@ -113,6 +120,10 @@ class S3Adapter extends Adapter {
     }
 
     return bucket;
+  }
+
+  private resolveObjectKey(objectKey: string): string {
+    return this.prefix ? `${this.prefix}${objectKey}` : objectKey;
   }
 }
 
