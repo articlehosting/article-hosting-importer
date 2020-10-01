@@ -107,17 +107,21 @@ class FileSystemService extends Service {
           return reject(err);
         }
 
-        const files: Array<FileModel> = [];
+        try {
+          const files: Array<FileModel> = [];
 
-        for (const dirent of dirents) {
-          if (dirent.isFile()) {
-            const filePath = path.join(folderPath, dirent.name);
+          for (const dirent of dirents) {
+            if (dirent.isFile()) {
+              const filePath = path.join(folderPath, dirent.name);
 
-            files.push(new FileModel(this.logger, { filePath }));
+              files.push(new FileModel(this.logger, { filePath }));
+            }
           }
-        }
 
-        return resolve(files);
+          return resolve(files);
+        } catch (e) {
+          return reject(e);
+        }
       });
     });
   }
