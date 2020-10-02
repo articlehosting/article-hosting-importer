@@ -200,6 +200,10 @@ class ArticleModel extends Model {
   constructor(logger: LoggerService, data: ArticleModelData) {
     super(logger);
 
+    if (!data.article.identifiers) {
+      throw new Error('Waaaaaaaiii!');
+    }
+
     this.Type = data.article.type;
     this.Title = data.article.title;
     this.Authors = data.article.authors;

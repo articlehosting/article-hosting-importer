@@ -30,11 +30,13 @@ class FileModel extends Model {
 
     this.Basename = path.basename(this.FilePath);
 
-    const [name, extension] = this.Basename.split('.');
+    const [name] = this.Basename.split('.');
 
-    if (!name || !extension) {
+    if (!name) {
       throw new Error(`Unable to parse basename ${this.Basename}`);
     }
+
+    const [,extension] = path.extname(this.Basename).split('.');
 
     this.Name = name;
     this.Extension = extension;

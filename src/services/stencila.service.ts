@@ -13,7 +13,7 @@ class StencilaService extends Service {
     this.fsService = new FileSystemService(this.logger);
   }
 
-  public async convert(xmlFile: FileModel): Promise<FileModel> {
+  public async convert(xmlFile: FileModel, from?: string, to?: string): Promise<FileModel> {
     const xmlFilePath = xmlFile.filePath;
     const jsonFilePath = xmlFile.filePath.replace('xml', 'json');
 
@@ -22,8 +22,15 @@ class StencilaService extends Service {
       'convert',
       this.fsService.resolveWorkingPath(xmlFilePath),
       this.fsService.resolveWorkingPath(jsonFilePath),
-      '--from', 'jats',
     ];
+
+    if (from) {
+      cmd.push('--from', from);
+    }
+
+    if (to) {
+      cmd.push('--to', to);
+    }
 
     return new Promise((resolve, reject) => {
       exec(cmd.join(' '), (err) => {

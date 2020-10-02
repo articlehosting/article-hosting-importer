@@ -1,8 +1,10 @@
+import path from 'path';
 import Processor from '../abstract/processor';
 import DatabaseAdapter from '../adapters/db.adapter';
 import S3Adapter from '../adapters/s3.adapter';
 import config from '../config';
 import { XML_EXT } from '../config/constants';
+import ManifestMapper, { Manifest, ManifestMapped } from '../mappers/manifest.mapper';
 import ArticleModel, { Article } from '../models/article.model';
 import FileModel from '../models/file.model';
 import S3EventModel, { S3Event } from '../models/s3-event.model';
@@ -15,6 +17,7 @@ import LoggerService, { Level } from '../services/logger.service';
 import SQSService from '../services/sqs.service';
 import StencilaService from '../services/stencila.service';
 import UtilService from '../services/util.service';
+import XmlService from '../services/xml.service';
 
 const { endpoint } = config.aws.s3;
 
@@ -30,6 +33,10 @@ class SQSEventProcessor extends Processor {
   private readonly extractService: ExtractService;
 
   private readonly stencilaService: StencilaService;
+
+  private readonly xmlService: XmlService;
+
+  private readonly manifestMapper: ManifestMapper<Manifest>;
 
   private readonly decodeService: DecodeService;
 
@@ -51,6 +58,8 @@ class SQSEventProcessor extends Processor {
     this.utilService = new UtilService(this.logger);
     this.extractService = new ExtractService(this.logger);
     this.stencilaService = new StencilaService(this.logger);
+    this.xmlService = new XmlService(this.logger);
+    this.manifestMapper = new ManifestMapper<Manifest>(this.logger);
     this.decodeService = new DecodeService(this.logger);
     this.importService = new ImportService(this.logger, this.sqsService, this.dbAdapter);
 
@@ -76,9 +85,11 @@ class SQSEventProcessor extends Processor {
       throw new Error('Invalid S3 event model');
     }
 
-    const files = await this.processSourceFile(this.Event);
+    const zipContents = await this.processSourceFile(this.Event);
 
-    const jsonFile = await this.stencilaService.convert(this.utilService.fetchFileByExtension(files, XML_EXT));
+    const files = await this.processZipContents(zipContents);
+
+    const jsonFile = await this.stencilaService.convert(this.utilService.fetchFileByExtension(files, XML_EXT), 'jats');
 
     const article = await this.decodeArticleFrom(jsonFile);
 
@@ -88,6 +99,39 @@ class SQSEventProcessor extends Processor {
     });
 
     await this.importService.importArticle(articleModel);
+  }
+
+  private async processZipContents(zipContents: Array<FileModel>): Promise<Array<FileModel>> {
+    const MANIFEST = 'manifest.xml';
+    // @todo: implement more better way..
+    const manifest = zipContents.find((file) => file.basename === MANIFEST);
+
+    if (!manifest) {
+      return zipContents;
+    }
+
+    const manifestContent = await this.xmlService.parse(manifest);
+    const decodedManifest = this.manifestMapper.map<ManifestMapped>(manifestContent);
+
+    const files: Array<string> = [];
+
+    if (!decodedManifest.xmlFile) {
+      throw new Error(`Unable to identify source XML file from ${MANIFEST}`);
+    } else {
+      files.push(decodedManifest.xmlFile);
+    }
+
+    if (decodedManifest.pdfFile) {
+      files.push(decodedManifest.pdfFile);
+    }
+
+    if (decodedManifest.media && Array.isArray(decodedManifest.media) && decodedManifest.media.length) {
+      files.push(...decodedManifest.media);
+    }
+
+    return files.map((file: string) => new FileModel(this.logger, {
+      filePath: path.join(manifest.dirname, file),
+    }));
   }
 
   private async processSourceFile({ objectKey, bucketName }: S3EventModel): Promise<Array<FileModel>> {
