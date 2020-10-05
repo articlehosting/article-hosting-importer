@@ -32,22 +32,20 @@ class ManifestMapper<T> extends Mapper<T> {
       'elements[1].elements[0].elements[2].attributes.href': 'pdfFile',
       'elements[1].elements': {
         key: 'media',
-        transform: (value: Array<ManifestXmlElement>) => this.fetchMedia(value),
+        transform: (value: Array<ManifestXmlElement>) => this.fetchFiles(value),
       },
     };
   }
 
-  private fetchMedia(elements: Array<ManifestXmlElement>): Array<string> {
+  private fetchFiles(elements: Array<ManifestXmlElement>): Array<string> {
     const media: Array<string> = [];
 
     elements.forEach((element) => {
       element.elements.forEach((e) => {
         if (e.attributes && e.attributes.href) {
-          if (e.attributes['media-type'] === 'image/tiff') {
+          if (e.attributes['media-type']) {
             media.push(e.attributes.href);
           }
-
-          // @todo: implement other conditions to select media files for article.
         }
       });
     });

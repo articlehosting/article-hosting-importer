@@ -201,7 +201,7 @@ class ArticleModel extends Model {
     super(logger);
 
     if (!data.article.identifiers) {
-      throw new Error('Waaaaaaaiii!');
+      throw new Error('Missing article indentifiers!');
     }
 
     this.Type = data.article.type;
