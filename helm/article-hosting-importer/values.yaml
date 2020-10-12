@@ -12,3 +12,5 @@ app:
   sqs_url: <>
   storage_bucket: <>
   archive_bucket: <>
+  ses_to_email: <>
+  ses_from_email: <>

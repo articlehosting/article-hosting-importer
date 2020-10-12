@@ -45,6 +45,8 @@ jobs:
             --set app.sqs_url=${{ secrets.SQS_URL }} \
             --set app.storage_bucket=${{ secrets.STORAGE_BUCKET }} \
             --set app.archive_bucket=${{ secrets.ARCHIVE_BUCKET }} \
+            --set app.ses_to_email=${{ secrets.SES_TO_EMAIL }} \
+            --set app.ses_from_email=${{ secrets.SES_FROM_EMAIL }} \
             --wait \
             helm/article-hosting-importer
         env:
