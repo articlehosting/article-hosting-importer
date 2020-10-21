@@ -43,7 +43,7 @@ class SESService extends Service {
 
   public async sendErrorMessage(message: SQSMessageModel<S3Event>, event: S3EventModel, err: Error): Promise<void> {
     const subject = 'Failed to import article';
-    const body = renderEmailErrorTemplate(message, event, err);
+    const body = renderEmailErrorTemplate(event, err);
 
     return this.sendMessage(subject, body);
   }

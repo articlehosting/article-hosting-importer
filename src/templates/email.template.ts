@@ -1,10 +1,9 @@
-import S3EventModel, { S3Event } from '../models/s3-event.model';
-import SQSMessageModel from '../models/sqs-message.model';
+import S3EventModel from '../models/s3-event.model';
 
-export const renderEmailErrorTemplate = (message: SQSMessageModel<S3Event>, event: S3EventModel, err: Error): string =>
+export const renderEmailErrorTemplate = (event: S3EventModel, err: Error): string =>
   `<html>
     <body>
-        <h1>Import article from ${event.bucketName}/${event.objectKey} with SQS message ${message.messageId} failed!</h1>
+        <h3>Import article from ${event.bucketName}/${event.objectKey}</h3>
         <p>
             <span style='color:red'>Reason: </span>
             <span>${err.message}</span>
