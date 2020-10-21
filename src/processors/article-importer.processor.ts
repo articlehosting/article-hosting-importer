@@ -82,8 +82,10 @@ class ArticleImporterProcessor extends Logable {
         new Promise((resolve) => {
           void this.processEvent(message, event)
             .then(resolve)
-            .catch((err) => {
+            .catch(async (err) => {
               this.logger.log<Error>(Level.error, err.message, err);
+
+              await this.sesService.sendErrorMessage(message, event, err);
 
               resolve();
             });
@@ -94,8 +96,6 @@ class ArticleImporterProcessor extends Logable {
           .catch(async (err) => {
             // critical error.
             this.logger.log<Error>(Level.error, `Unable to clear stuff ${message.messageId}. ${err.message}`, err);
-
-            await this.sesService.sendErrorMessage(message, event, err);
           }),
       );
     }
