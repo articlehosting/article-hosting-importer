@@ -1,22 +1,26 @@
 import SQSEventProcessor from './sqs-message.processor';
 import Logable from '../abstract/logable';
 import DatabaseAdapter from '../adapters/db.adapter';
+import SESAdapter from '../adapters/ses.adapter';
 import SQSAdapter from '../adapters/sqs.adapter';
 import config from '../config';
 import S3EventModel, { S3Event } from '../models/s3-event.model';
 import SQSMessageModel from '../models/sqs-message.model';
 import CleanerService from '../services/cleaner.service';
 import LoggerService, { Level } from '../services/logger.service';
+import SESService from '../services/ses.service';
 import SQSService from '../services/sqs.service';
-
-const { endpoint } = config.aws.sqs;
 
 class ArticleImporterProcessor extends Logable {
   private readonly sqsAdapter: SQSAdapter;
 
+  private readonly sesAdapter: SESAdapter;
+
   private readonly dbAdapter: DatabaseAdapter;
 
   private readonly sqsService: SQSService;
+
+  private readonly sesService: SESService;
 
   private readonly cleanerService: CleanerService;
 
@@ -27,13 +31,22 @@ class ArticleImporterProcessor extends Logable {
       this.logger,
       {
         queueName: config.aws.sqs.queueName,
-        endpoint,
+        endpoint: config.aws.sqs.endpoint,
+      },
+    );
+
+    this.sesAdapter = new SESAdapter(
+      this.logger,
+      {
+        endpoint: config.aws.ses.endpoint,
       },
     );
 
     this.dbAdapter = new DatabaseAdapter(this.logger);
 
     this.sqsService = new SQSService(this.logger, this.sqsAdapter);
+
+    this.sesService = new SESService(this.logger, this.sesAdapter);
 
     this.cleanerService = new CleanerService(this.logger);
   }
@@ -78,9 +91,11 @@ class ArticleImporterProcessor extends Logable {
           .then(async () => {
             await this.cleanerService.clean(message, event);
           })
-          .catch((err) => {
+          .catch(async (err) => {
             // critical error.
             this.logger.log<Error>(Level.error, `Unable to clear stuff ${message.messageId}. ${err.message}`, err);
+
+            await this.sesService.sendErrorMessage(message, event, err);
           }),
       );
     }

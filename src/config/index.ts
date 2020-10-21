@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { CommonEncodeOptions } from '@stencila/encoda/dist/codecs/types';
+import { SendEmailRequest } from 'aws-sdk/clients/ses';
 import { ReceiveMessageRequest } from 'aws-sdk/clients/sqs';
 import { MongoClientOptions } from 'mongodb';
 import { JSON_EXT, XML_EXT, ZIP_EXT } from './constants';
@@ -40,22 +41,33 @@ const config = {
         AttributeNames: [
           'SentTimestamp',
         ],
-        MaxNumberOfMessages: 3, // executes 3 articles in parallel
+        MaxNumberOfMessages: process.env.SQS_MAX_NUMBER_OF_MESSAGES ?? 3, // executes 3 articles in parallel
         MessageAttributeNames: [
           'All',
         ],
-        VisibilityTimeout: 5 ?? 20,
-        WaitTimeSeconds: 10,
+        VisibilityTimeout: process.env.SQS_VISIBILITY_TIMEOUT ?? 5,
+        WaitTimeSeconds: process.env.SQS_WAIT_TIME_SECONDS ?? 10,
       },
     },
     s3: {
       endpoint: process.env.S3_ENDPOINT,
       articleStorage: {
         bucketName: process.env.S3_STORAGE_BUCKET_NAME,
-        prefix: 'articles/',
+        prefix: process.env.S3_STORAGE_BUCKET_PREFIX ?? 'articles/',
       },
       archiveStorage: {
         bucketName: process.env.S3_ARCHIVE_BUCKET_NAME,
+      },
+    },
+    ses: {
+      endpoint: process.env.SES_ENDPOINT,
+      defaultSendParams: <SendEmailRequest>{
+        Destination: {
+          ToAddresses: process.env.NOTIFY_EMAIL_TO ? [
+            process.env.NOTIFY_EMAIL_TO,
+          ] : [],
+        },
+        Source: process.env.NOTIFY_EMAIL_FROM,
       },
     },
   },
