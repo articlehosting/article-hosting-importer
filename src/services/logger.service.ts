@@ -12,14 +12,14 @@ export enum Level {
 }
 
 class LoggerService {
-  private winston: Logger;
+  private readonly winston: Logger;
 
   constructor() {
     // todo: creates more acceptable logger.
     this.winston = winston.createLogger({
       level: config.logger.level ?? 'info',
       format: winston.format.json(),
-      defaultMeta: { service: 'user-services' },
+      defaultMeta: config.logger.defaultMeta,
       transports: [
         //
         // - Write all logs with level `error` and below to `error.log`
@@ -39,7 +39,10 @@ class LoggerService {
   }
 
   public log<T>(level: Level, message: string, data?: T): void {
-    this.winston[level](message, data);
+    const now = new Date();
+    const date = `${now.toLocaleDateString()} ${now.toTimeString()}`;
+
+    this.winston[level](`[${date}] - ${message}`, data);
   }
 }
 

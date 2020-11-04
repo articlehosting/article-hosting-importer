@@ -15,11 +15,13 @@
     "@stencila/encoda": "^0.99.6",
     "aws-sdk": "^2.739.0",
     "extract-zip": "2.0.1",
+    "glob": "7.1.6",
     "mongodb": "^3.6.0",
     "object-mapper": "6.2.0",
     "rimraf": "^3.0.2",
     "winston": "^3.3.3",
-    "xml-js": "1.6.11"
+    "xml-js": "1.6.11",
+    "xml2js": "0.4.23"
   },
   "devDependencies": {
     "@types/jest": "^26.0.5",
@@ -28,6 +30,7 @@
     "@types/object-mapper": "6.2.0",
     "@types/rimraf": "^3.0.0",
     "@types/supertest": "^2.0.10",
+    "@types/xml2js": "0.4.5",
     "@typescript-eslint/eslint-plugin": "^3.6.1",
     "@typescript-eslint/parser": "^3.6.1",
     "concurrently": "^5.2.0",

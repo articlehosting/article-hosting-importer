@@ -2,10 +2,11 @@ version: "3"
 
 services:
   sqs:
-    image: "roribio16/alpine-sqs"
+    image: graze/sqs-local
     ports:
       - 9324:9324
-      - 9325:9325
+    volumes:
+      - ./elasticmq.conf:/elasticmq.conf
   minio:
     image: minio/minio
     command: ["server", "/data"]

@@ -1,4 +1,3 @@
-import path from 'path';
 import FileSystemService from './fs.service';
 import LoggerService from './logger.service';
 import Service from '../abstract/service';
@@ -16,7 +15,7 @@ class ExtractService extends Service {
   public async extractFiles(zipFile: FileModel, destination: string): Promise<Array<FileModel>> {
     await this.fsService.extract(zipFile, destination);
 
-    const files = await this.fsService.getFolderFiles(path.join(destination, zipFile.name));
+    const files = await this.fsService.getFolderFiles(destination);
 
     return files;
   }

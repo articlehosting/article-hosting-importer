@@ -1,4 +1,4 @@
-import { xml2json } from 'xml-js';
+import xml2js, { parseStringPromise } from 'xml2js';
 import DecodeService from './decode.service';
 import FileSystemService from './fs.service';
 import LoggerService from './logger.service';
@@ -18,9 +18,15 @@ class XmlService extends Service {
   }
 
   public async parse<T>(file: FileModel): Promise<T> {
-    const result = xml2json(await this.fsService.readFileContents(file));
+    const fileContents = await this.fsService.readFileContents(file);
 
-    return this.decodeService.decodeJSON<T>(result);
+    return <T><unknown>(await parseStringPromise(fileContents));
+  }
+
+  public createXml<T>(json: T): string {
+    const builder = new xml2js.Builder();
+
+    return builder.buildObject(json);
   }
 }
 

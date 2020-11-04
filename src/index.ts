@@ -6,7 +6,7 @@ void (async (): Promise<void> => {
   const logger = new LoggerService();
 
   try {
-    logger.log(Level.warn, `Service starts in ${process.env.NODE_ENV} mode.`);
+    logger.log(Level.warn, `Service starts in ${process.env.NODE_ENV ?? 'development'} mode.`);
     const api = new ArticleImporterProcessor(logger);
 
     await api.process();

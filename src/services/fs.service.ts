@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { Readable } from 'stream';
 import extractzip from 'extract-zip';
+import glob from 'glob';
 import rimraf from 'rimraf';
 import { Level } from './logger.service';
 import Service from '../abstract/service';
@@ -102,21 +103,17 @@ class FileSystemService extends Service {
 
   public async getFolderFiles(folderPath: string): Promise<Array<FileModel>> {
     return new Promise((resolve, reject) => {
-      fs.readdir(this.resolveWorkingPath(folderPath), { withFileTypes: true }, (err, dirents: Array<fs.Dirent>) => {
+      const resolvedFolderPath = this.resolveWorkingPath(folderPath);
+
+      glob(`${resolvedFolderPath}/**/*`, (err, filePaths) => {
         if (err) {
           return reject(err);
         }
 
         try {
-          const files: Array<FileModel> = [];
-
-          for (const dirent of dirents) {
-            if (dirent.isFile()) {
-              const filePath = path.join(folderPath, dirent.name);
-
-              files.push(new FileModel(this.logger, { filePath }));
-            }
-          }
+          const files = filePaths.map((file) => new FileModel(this.logger, {
+            filePath: path.join(folderPath, path.relative(resolvedFolderPath, file)),
+          }));
 
           return resolve(files);
         } catch (e) {
