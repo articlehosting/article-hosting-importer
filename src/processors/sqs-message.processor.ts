@@ -4,7 +4,6 @@ import DatabaseAdapter from '../adapters/db.adapter';
 import S3Adapter from '../adapters/s3.adapter';
 import config from '../config';
 import { XML_EXT } from '../config/constants';
-import ManifestMapper, { Manifest } from '../mappers/manifest.mapper';
 import ArticleModel, { Article } from '../models/article.model';
 import FileModel from '../models/file.model';
 import S3EventModel, { S3Event } from '../models/s3-event.model';
@@ -37,8 +36,6 @@ class SQSEventProcessor extends Processor {
 
   private readonly xmlService: XmlService;
 
-  private readonly manifestMapper: ManifestMapper<Manifest>;
-
   private readonly manifestProcessor: ManifestProcessor;
 
   private readonly decodeService: DecodeService;
@@ -62,7 +59,6 @@ class SQSEventProcessor extends Processor {
     this.extractService = new ExtractService(this.logger);
     this.stencilaService = new StencilaService(this.logger);
     this.xmlService = new XmlService(this.logger);
-    this.manifestMapper = new ManifestMapper<Manifest>(this.logger);
     this.manifestProcessor = new ManifestProcessor(this.logger);
     this.decodeService = new DecodeService(this.logger);
     this.importService = new ImportService(this.logger, this.sqsService, this.dbAdapter);

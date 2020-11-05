@@ -102,25 +102,31 @@ class FileSystemService extends Service {
   }
 
   public async getFolderFiles(folderPath: string): Promise<Array<FileModel>> {
-    return new Promise((resolve, reject) => {
-      const resolvedFolderPath = this.resolveWorkingPath(folderPath);
+    const resolvedFolderPath = this.resolveWorkingPath(folderPath);
 
-      glob(`${resolvedFolderPath}/**/*`, (err, filePaths) => {
+    const filePaths: Array<string> = await new Promise((resolve, reject) => {
+      glob(`${resolvedFolderPath}/**/*`, (err, files) => {
         if (err) {
           return reject(err);
         }
 
-        try {
-          const files = filePaths.map((file) => new FileModel(this.logger, {
-            filePath: path.join(folderPath, path.relative(resolvedFolderPath, file)),
-          }));
+        this.logger.log(Level.debug, 'scanned zip contents', files);
 
-          return resolve(files);
-        } catch (e) {
-          return reject(e);
-        }
+        return resolve(files);
       });
     });
+
+    const files: Array<FileModel> = [];
+
+    for (const filePath of filePaths) {
+      if ((await this.stats(filePath)).isFile()) {
+        files.push(new FileModel(this.logger, {
+          filePath: path.join(folderPath, path.relative(resolvedFolderPath, filePath)),
+        }));
+      }
+    }
+
+    return files;
   }
 
   public async removeFolder(folderPath: string): Promise<void> {
@@ -145,6 +151,18 @@ class FileSystemService extends Service {
     const absoluteDestPath = this.resolveWorkingPath(destination);
 
     return extractzip(absoluteFilePath, { dir: absoluteDestPath });
+  }
+
+  private async stats(objectPath: string, resolvePath = false): Promise<fs.Stats> {
+    return new Promise((resolve, reject) => {
+      fs.lstat(resolvePath ? this.resolveWorkingPath(objectPath) : objectPath, (err, stats) => {
+        if (err) {
+          return reject(err);
+        }
+
+        return resolve(stats);
+      });
+    });
   }
 }
 
