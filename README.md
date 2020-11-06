@@ -40,6 +40,8 @@ Development
 ### Running the app
 <details>
 
+<summary>Running service locally</summary>
+
 Create a local docker-compose.yaml file with contents:
 
 ```yaml
